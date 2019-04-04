@@ -1,0 +1,9 @@
+NAME
+  LandmarkTransform
+DESCRIPTION
+  Landmark Transform Filter
+REQUIRES_MODULES
+  VTK::CommonExecutionModel
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::FiltersCore

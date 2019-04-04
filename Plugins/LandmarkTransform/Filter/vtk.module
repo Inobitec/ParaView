@@ -1,0 +1,14 @@
+NAME
+  LandmarkTransform::LandmarkTransformFilter
+LIBRARY_NAME
+  vtkLandmarkTransformFilter
+DEPENDS
+  VTK::CommonExecutionModel
+  VTK::CommonCore
+  VTK::CommonTransforms
+PRIVATE_DEPENDS
+  ParaView::ClientServerCoreCore
+  ParaView::VTKExtensionsDefault
+  VTK::CommonDataModel
+  VTK::FiltersCore
+  VTK::InfovisCore

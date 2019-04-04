@@ -599,6 +599,7 @@ set(paraview_default_plugins
   GeodesicMeasurement
   GMVReader
   LagrangianParticleTracker
+  LandmarkTransform
   Moments
   MooseXfemClip
   NetCDFTimeAnnotationPlugin
