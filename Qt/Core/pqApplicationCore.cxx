@@ -508,8 +508,22 @@ pqSettings* pqApplicationCore::settings()
     // for the app name, we use a "-dr" suffix is disable_settings is true.
     const QString suffix(disable_settings ? "-dr" : "");
 
-    auto settings = new pqSettings(
+    /* TODO: add compile option PORTABLE
+    if(PORTABLE)
+    {
+      QString config_name = "ParaView.ini";
+      config_name = QDir::currentPath()+ QDir::separator()+config_name;
+      auto settings = new pqSettings(config_name , QSettings::IniFormat, this);
+    }
+    else {
+      auto settings = new pqSettings(
       QSettings::IniFormat, QSettings::UserScope, settingsOrg, settingsApp + suffix, this);
+    } */
+    QString config_name = "ParaView.ini";
+    config_name = QDir::currentPath()+ QDir::separator()+config_name;
+    auto settings = new pqSettings(config_name , QSettings::IniFormat, this);
+    //    auto settings = new pqSettings(
+//      QSettings::IniFormat, QSettings::UserScope, settingsOrg, settingsApp + suffix, this);
     if (disable_settings || settings->value("pqApplicationCore.DisableSettings", false).toBool())
     {
       vtkVLogF(PARAVIEW_LOG_APPLICATION_VERBOSITY(), "loading of Qt settings skipped (disabled).");
