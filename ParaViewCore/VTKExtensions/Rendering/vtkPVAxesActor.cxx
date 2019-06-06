@@ -40,6 +40,7 @@ vtkCxxSetObjectMacro(vtkPVAxesActor, UserDefinedShaft, vtkPolyData);
 
 //-----------------------------------------------------------------------------
 vtkPVAxesActor::vtkPVAxesActor()
+  : CustomActor(nullptr)
 {
   this->XAxisLabelText = NULL;
   this->YAxisLabelText = NULL;
@@ -180,6 +181,11 @@ vtkPVAxesActor::~vtkPVAxesActor()
   this->XAxisLabel->Delete();
   this->YAxisLabel->Delete();
   this->ZAxisLabel->Delete();
+
+  if (CustomActor)
+  {
+    this->CustomActor->Delete();
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -207,6 +213,9 @@ void vtkPVAxesActor::GetActors(vtkPropCollection* ac)
   ac->AddItem(this->XAxisLabel);
   ac->AddItem(this->YAxisLabel);
   ac->AddItem(this->ZAxisLabel);
+
+  if (this->CustomActor)
+    ac->AddItem(this->CustomActor);
 }
 
 //-----------------------------------------------------------------------------
@@ -233,6 +242,9 @@ int vtkPVAxesActor::RenderOpaqueGeometry(vtkViewport* vp)
   this->XAxisLabel->RenderOpaqueGeometry(vp);
   this->YAxisLabel->RenderOpaqueGeometry(vp);
   this->ZAxisLabel->RenderOpaqueGeometry(vp);
+
+  if (this->CustomActor)
+    this->CustomActor->RenderOpaqueGeometry(vp);
 
   return renderedSomething;
 }
@@ -295,6 +307,9 @@ void vtkPVAxesActor::ReleaseGraphicsResources(vtkWindow* win)
   this->XAxisLabel->ReleaseGraphicsResources(win);
   this->YAxisLabel->ReleaseGraphicsResources(win);
   this->ZAxisLabel->ReleaseGraphicsResources(win);
+
+  if (this->CustomActor)
+    this->CustomActor->ReleaseGraphicsResources(win);
 }
 
 //-----------------------------------------------------------------------------
@@ -446,6 +461,11 @@ vtkProperty* vtkPVAxesActor::GetYAxisLabelProperty()
 vtkProperty* vtkPVAxesActor::GetZAxisLabelProperty()
 {
   return this->ZAxisLabel->GetProperty();
+}
+
+void vtkPVAxesActor::AddCustomActor(vtkActor* actor)
+{
+  this->CustomActor = actor;
 }
 
 //-----------------------------------------------------------------------------

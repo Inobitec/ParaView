@@ -1160,6 +1160,9 @@ protected:
   bool LockBounds;
 
 private:
+  void AddCustomAxesActor();
+
+private:
   vtkPVRenderView(const vtkPVRenderView&) = delete;
   void operator=(const vtkPVRenderView&) = delete;
 

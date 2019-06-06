@@ -230,6 +230,8 @@ public:
   vtkSetStringMacro(ZAxisLabelText);
   //@}
 
+  void AddCustomActor(vtkActor* actor);
+
   enum
   {
     CYLINDER_SHAFT,
@@ -260,6 +262,8 @@ protected:
   vtkActor* XAxisTip;
   vtkActor* YAxisTip;
   vtkActor* ZAxisTip;
+
+  vtkActor* CustomActor;
 
   void UpdateProps();
 

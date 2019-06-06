@@ -32,6 +32,7 @@
 #include "vtkInteractorObserver.h"
 #include "vtkPVVTKExtensionsRenderingModule.h" // needed for export macro
 
+class vtkActor;
 class vtkActor2D;
 class vtkKWApplication;
 class vtkPolyData;
@@ -115,6 +116,8 @@ public:
   void SetViewport(double minX, double minY, double maxX, double maxY);
   double* GetViewport();
   //@}
+
+  void AddCustomActor(vtkActor* actor);
 
 protected:
   vtkPVAxesWidget();
