@@ -49,6 +49,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
 #include "vtkNew.h"
+#include "vtkOBJReader.h"
 #include "vtkObjectFactory.h"
 #include "vtkPKdTree.h"
 #include "vtkPVAxesWidget.h"
@@ -76,6 +77,7 @@
 #include "vtkPartitionOrdering.h"
 #include "vtkPartitionOrderingInterface.h"
 #include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProcessModule.h"
 #include "vtkRenderViewBase.h"
 #include "vtkRenderWindow.h"
@@ -478,6 +480,7 @@ vtkPVRenderView::vtkPVRenderView()
     observer3->Delete();
   }
 
+  AddCustomAxesActor();
   this->OrientationWidget->SetParentRenderer(this->GetRenderer());
   this->OrientationWidget->SetViewport(0, 0, 0.25, 0.25);
 
@@ -920,6 +923,34 @@ void vtkPVRenderView::PostSelect(vtkSelection* sel)
 
   this->MakingSelection = false;
   this->GetRenderWindow()->SetSwapBuffers(this->PreviousSwapBuffers);
+}
+
+void vtkPVRenderView::AddCustomAxesActor()
+{
+  try
+  {
+    vtkNew<vtkOBJReader> reader;
+    // TODO: fixme, get from resources
+    const char* filename = "resources/axes.obj";
+    reader->SetFileName(filename);
+    reader->Update();
+
+    vtkNew<vtkPolyDataMapper> mapper;
+    mapper->SetInputConnection(reader->GetOutputPort());
+
+    vtkActor* actor = vtkActor::New();
+    actor->SetMapper(mapper);
+
+    this->OrientationWidget->AddCustomActor(actor);
+  }
+  catch (const std::exception& ex)
+  {
+    vtkErrorMacro(<< "Error message" << ex.what());
+  }
+  catch (...)
+  {
+    vtkErrorMacro(<< "Unknown exception");
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2091,7 +2122,7 @@ bool vtkPVRenderView::GetRenderEmptyImages()
   int ptype = vtkProcessModule::GetProcessType();
   if (this->RenderEmptyImages &&
     ((ptype == vtkProcessModule::PROCESS_SERVER) || (ptype == vtkProcessModule::PROCESS_BATCH) ||
-        (ptype == vtkProcessModule::PROCESS_RENDER_SERVER)) &&
+      (ptype == vtkProcessModule::PROCESS_RENDER_SERVER)) &&
     (vtkProcessModule::GetProcessModule()->GetNumberOfLocalPartitions() > 1))
   {
     return true;
