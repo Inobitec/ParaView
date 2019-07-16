@@ -2910,6 +2910,18 @@
     <ContextViewProxy base_proxygroup="internal_views"
                       base_proxyname="XYChartViewBase4Axes"
                       class="vtkPVXYChartView"
+                      name="MultiLinesView"
+                      label="Line Chart View Ext"
+                      processes="client|renderserver|dataserver"
+                      representation_name="XYChartRepresentationExt"
+                      post_creation="SetChartTypeToLine" >
+      <Documentation>This is the proxy for the XY line chart
+      view.</Documentation>
+    </ContextViewProxy>
+    <!-- ================================================================== -->
+    <ContextViewProxy base_proxygroup="internal_views"
+                      base_proxyname="XYChartViewBase4Axes"
+                      class="vtkPVXYChartView"
                       name="XYPointChartView"
                       label="Point Chart View"
                       processes="client|renderserver|dataserver"
@@ -7880,6 +7892,32 @@
       <Hints>
         <InitializationHelper class="vtkSMXYChartRepresentationInitializationHelper" />
       </Hints>
+    </ChartRepresentationProxy>
+
+    <!-- =================================================================== -->
+    <ChartRepresentationProxy base_proxygroup="representations"
+                              base_proxyname="XYChartRepresentation"
+                              class="vtkXYChartRepresentationExt"
+                              name="XYChartRepresentationExt"
+                              processes="client|dataserver|renderserver"
+                              post_creation="SetChartTypeToLine">
+      <Documentation>Representation used by XYChartView.</Documentation>
+
+        <IntVectorProperty command="SetCurrentIndex"
+                           default_values="1"
+                           name="CurrentIndex"
+                           panel_visibility="never"
+                           number_of_elements="1">
+
+        </IntVectorProperty>
+
+        <IntVectorProperty command="SetCountOfArrays"
+                           default_values="1"
+                           name="CountOfArrays"
+                           panel_visibility="never"
+                           number_of_elements="1">
+
+        </IntVectorProperty>
     </ChartRepresentationProxy>
 
     <!-- =================================================================== -->

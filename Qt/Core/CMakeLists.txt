@@ -62,6 +62,7 @@ set(classes
   pqLinkViewWidget
   pqLinksModel
   pqMainWindowEventManager
+  pqMultiLinesView
   pqMultiSliceAxisWidget
   pqMultiSliceView
   pqNonEditableStyledItemDelegate

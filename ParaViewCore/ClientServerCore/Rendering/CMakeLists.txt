@@ -105,7 +105,8 @@ set(classes
   vtkTextSourceRepresentation
   vtkThreeSliceFilter
   vtkUnstructuredGridVolumeRepresentation
-  vtkXYChartRepresentation)
+  vtkXYChartRepresentation
+  vtkXYChartRepresentationExt)
 
 if (TARGET VTK::WrappingPythonCore AND TARGET VTK::PythonInterpreter)
   # TODO: Split these into a separate module so that there isn't a public
