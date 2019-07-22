@@ -846,6 +846,18 @@
       </Hints>
       <!-- End of Cylinder -->
     </Proxy>
+
+    <!-- Ruler 2D -->
+<!--    <Proxy class="vtkDistance"
+           label="Ruler 2D"
+           name="Ruler2D">
+       <PropertyGroup label="Ruler Parameters" panel_widget="DistancePropertyWidget">
+         <Property function="Input" name="Input" />
+       </PropertyGroup>
+
+    </Proxy>-->
+    <!--End of Ruler 2D -->
+
   </ProxyGroup>
   <ProxyGroup name="transforms">
     <Proxy class="vtkTransform"

@@ -87,6 +87,7 @@ set(classes
   pqDefaultViewBehavior
   pqDeleteReaction
   pqDesktopServicesReaction
+  pqDistancePropertyWidget
   pqDoubleRangeSliderPropertyWidget
   pqEditCameraReaction
   pqEditColorMapReaction

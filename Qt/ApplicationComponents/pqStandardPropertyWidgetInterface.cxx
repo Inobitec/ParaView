@@ -49,6 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pqCompositePropertyWidgetDecorator.h"
 #include "pqCylinderPropertyWidget.h"
 #include "pqDisplayRepresentationWidget.h"
+#include "pqDistancePropertyWidget.h"
 #include "pqDoubleRangeSliderPropertyWidget.h"
 #include "pqEnableWidgetDecorator.h"
 #include "pqFileNamePropertyWidget.h"
@@ -292,6 +293,10 @@ pqPropertyWidget* pqStandardPropertyWidgetInterface::createWidgetForPropertyGrou
   else if (panelWidget == "InteractiveCylinder")
   {
     return new pqCylinderPropertyWidget(proxy, group, parentWidget);
+  }
+  else if (panelWidget == "DistancePropertyWidget")
+  {
+    return new pqDistancePropertyWidget(proxy, group, parentWidget);
   }
   else if (panelWidget == "cinema_export_selector")
   {
