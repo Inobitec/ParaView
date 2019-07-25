@@ -3,8 +3,10 @@
 
 #include "vtkDataRepresentation.h"
 #include "vtkPVClientServerCoreRenderingModule.h"
+#include "vtkWeakPointer.h"
 
 class vtkWidgetRepresentation;
+class vtkPVContextView;
 
 /**
  * @class   vtk2DWidgetRepresentation
@@ -42,8 +44,23 @@ protected:
   vtk2DWidgetRepresentation();
   ~vtk2DWidgetRepresentation() override;
 
+   /**
+   * Adds the representation to the view.  This is called from
+   * vtkView::AddRepresentation().  Subclasses should override this method.
+   * Returns true if the addition succeeds.
+   */
+  bool AddToView(vtkView* view) override;
+
+   /**
+   * Removes the representation to the view.  This is called from
+   * vtkView::RemoveRepresentation().  Subclasses should override this method.
+   * Returns true if the removal succeeds.
+   */
+  bool RemoveFromView(vtkView* view) override;
+
   vtkWidgetRepresentation* Representation;
   bool Enabled;
+  vtkWeakPointer<vtkPVContextView> View;
 
 private:
   vtk2DWidgetRepresentation(const vtk2DWidgetRepresentation&) = delete;

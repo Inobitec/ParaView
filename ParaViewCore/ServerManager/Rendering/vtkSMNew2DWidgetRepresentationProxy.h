@@ -12,6 +12,7 @@
  * vtkSMNew2DWidgetRepresentationProxy is a proxy for 2D widgets and their
  * representations.
  **/
+
 class VTKPVSERVERMANAGERRENDERING_EXPORT vtkSMNew2DWidgetRepresentationProxy : public vtkSMProxy
 {
 public:
@@ -44,6 +45,9 @@ protected:
 private:
   vtkSMNew2DWidgetRepresentationProxy(const vtkSMNew2DWidgetRepresentationProxy&) = delete;
   void operator=(const vtkSMNew2DWidgetRepresentationProxy&) = delete;
+
+  struct Internals;
+  Internals* Internal;
 };
 
 #endif

@@ -18,4 +18,5 @@ pq2DLinePropertyWidget::~pq2DLinePropertyWidget()
 void pq2DLinePropertyWidget::placeWidget()
 {
   vtkSMNew2DWidgetRepresentationProxy* wdgProxy = this->widgetProxy();
+  wdgProxy->UpdateVTKObjects();
 }

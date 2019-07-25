@@ -1,10 +1,10 @@
 #include "pqInteractiveProperty2DWidget.h"
 
 #include "pqApplicationCore.h"
+#include "pqContextView.h"
 #include "pqCoreUtilities.h"
 #include "pqLiveInsituVisualizationManager.h"
 #include "pqPropertyLinks.h"
-#include "pqRenderViewBase.h"
 #include "pqServer.h"
 #include "pqServerManagerModel.h"
 #include "pqUndoStack.h"
@@ -154,7 +154,7 @@ void pqInteractiveProperty2DWidget::setView(pqView* pqview)
     pqview = NULL;
   }
 
-  pqView* rview = qobject_cast<pqRenderViewBase*>(pqview);
+  pqView* rview = qobject_cast<pqContextView*>(pqview);
   pqView* oldview = this->view();
   if (oldview == rview)
   {

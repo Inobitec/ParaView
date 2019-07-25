@@ -413,25 +413,20 @@
     <!-- ================================================================== -->
     <New2DWidgetRepresentationProxy class="vtk2DWidgetRepresentation"
                                   name="2DLineWidgetRepresentation">
-<!--      <IntVectorProperty command="SetEnabled"
+      <IntVectorProperty command="SetEnabled"
                          default_values="0"
                          name="Enabled"
                          number_of_elements="1">
         <BooleanDomain name="bool" />
         <Documentation>Enable/Disable widget interaction.</Documentation>
-      </IntVectorProperty>-->
+      </IntVectorProperty>
 
 <!--      <SubProxy>
-        <Proxy name="Prop2D"
+        <Proxy name="ContextItem"
                proxygroup="3d_widget_representations"
-               proxyname="DistanceRepresentation2D"></Proxy>
+               proxyname="LineContextItem"></Proxy>
         <ExposedProperties>
           <Property name="Visibility" />
-          <Property name="Point1WorldPositionInfo" />
-          <Property name="Point1WorldPosition" />
-          <Property name="Point2WorldPositionInfo" />
-          <Property name="Point2WorldPosition" />
-          <Property name="PlaceWidget" />
         </ExposedProperties>
       </SubProxy>-->
 <!--      <SubProxy>
@@ -1280,6 +1275,19 @@
         <DoubleRangeDomain name="range" />
       </DoubleVectorProperty>
       <!-- End of DistanceRepresentation2D -->
+    </Proxy>
+    <!-- ================================================================== -->
+    <Proxy class="vtkLineContextItem"
+           name="LineContextItem"
+           post_creation="InstantiateHandleRepresentation">
+      <IntVectorProperty animateable="1"
+                         command="SetVisibility"
+                         default_values="1"
+                         name="Visibility"
+                         number_of_elements="1">
+        <BooleanDomain name="bool" />
+      </IntVectorProperty>
+      <!-- End of LineContextItem -->
     </Proxy>
     <!-- ================================================================== -->
     <ImplicitPlaneRepresentationProxy class="vtkPVImplicitPlaneRepresentation"
