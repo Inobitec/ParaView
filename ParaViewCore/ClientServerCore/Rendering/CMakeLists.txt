@@ -29,6 +29,7 @@
 #
 #==========================================================================
 set(classes
+  vtk2DWidgetRepresentation
   vtk3DWidgetRepresentation
   vtkAMROutlineRepresentation
   vtkAMRStreamingPriorityQueue

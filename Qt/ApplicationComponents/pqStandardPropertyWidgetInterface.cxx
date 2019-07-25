@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPVConfig.h"
 
+#include "pq2DLinePropertyWidget.h"
 #include "pqAnimationShortcutDecorator.h"
 #include "pqArrayStatusPropertyWidget.h"
 #include "pqBackgroundEditorWidget.h"
@@ -297,6 +298,10 @@ pqPropertyWidget* pqStandardPropertyWidgetInterface::createWidgetForPropertyGrou
   else if (panelWidget == "DistancePropertyWidget")
   {
     return new pqDistancePropertyWidget(proxy, group, parentWidget);
+  }
+  else if (panelWidget == "2DLinePropertyWidget")
+  {
+    return new pq2DLinePropertyWidget(proxy, group, parentWidget);
   }
   else if (panelWidget == "cinema_export_selector")
   {

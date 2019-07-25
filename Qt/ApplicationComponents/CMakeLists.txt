@@ -29,6 +29,7 @@
 #
 #==========================================================================
 set(classes
+  pq2DLinePropertyWidget
   pqAboutDialogReaction
   pqAddToFavoritesReaction
   pqAlwaysConnectedBehavior
@@ -108,6 +109,7 @@ set(classes
   pqImportCinemaReaction
   pqInputDataTypeDecorator
   pqInteractivePropertyWidget
+  pqInteractiveProperty2DWidget
   pqLinePropertyWidget
   pqLinkSelectionReaction
   pqListPropertyWidget

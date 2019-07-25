@@ -1,0 +1,49 @@
+#ifndef vtkSMNew2DWidgetRepresentationProxy_h
+#define vtkSMNew2DWidgetRepresentationProxy_h
+
+#include "vtkPVServerManagerRenderingModule.h" //needed for exports
+#include "vtkSMProxy.h"
+
+/**
+ * @class   vtkSMNew2DWidgetRepresentationProxy
+ * @brief   proxy for 2D widgets and
+ * their representations in ParaView.
+ *
+ * vtkSMNew2DWidgetRepresentationProxy is a proxy for 2D widgets and their
+ * representations.
+ **/
+class VTKPVSERVERMANAGERRENDERING_EXPORT vtkSMNew2DWidgetRepresentationProxy : public vtkSMProxy
+{
+public:
+  static vtkSMNew2DWidgetRepresentationProxy* New();
+  vtkTypeMacro(vtkSMNew2DWidgetRepresentationProxy, vtkSMProxy);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  //@{
+  /**
+   * Called to link properties from a Widget to \c controlledProxy i.e. a
+   * proxy whose properties are being manipulated using this Widget.
+   * Currently, we only support linking with one controlled proxy at a time. One
+   * must call UnlinkProperties() before one can call this method on another
+   * controlledProxy. The \c controlledPropertyGroup is used to determine the
+   * mapping between this widget properties and controlledProxy properties.
+   */
+  bool LinkProperties(vtkSMProxy* controlledProxy, vtkSMPropertyGroup* controlledPropertyGroup);
+  bool UnlinkProperties(vtkSMProxy* controlledProxy);
+  //@}
+protected:
+  vtkSMNew2DWidgetRepresentationProxy();
+  ~vtkSMNew2DWidgetRepresentationProxy() override;
+
+  /**
+   * Overridden from vtkSMProxy to call BeginCreateVTKObjects() and
+   * EndCreateVTKObjects().
+   */
+  void CreateVTKObjects() override;
+
+private:
+  vtkSMNew2DWidgetRepresentationProxy(const vtkSMNew2DWidgetRepresentationProxy&) = delete;
+  void operator=(const vtkSMNew2DWidgetRepresentationProxy&) = delete;
+};
+
+#endif

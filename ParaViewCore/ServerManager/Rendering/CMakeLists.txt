@@ -50,6 +50,7 @@ set(classes
   vtkSMMaterialLibraryProxy
   vtkSMMultiSliceViewProxy
   vtkSMNewWidgetRepresentationProxy
+  vtkSMNew2DWidgetRepresentationProxy
   vtkSMOrthographicSliceViewProxy
   vtkSMPVMoleculeRepresentationProxy
   vtkSMPVRepresentationProxy

@@ -297,4 +297,5 @@
   <Proxy group="filters" name="SliceWithPlane" />
   <Proxy group="filters" name="RulerFilter" icon=":/pqWidgets/Icons/pqRuler.png"/>
   <Proxy group="filters" name="Distance2DFilter"/>
+  <Proxy group="filters" name="Distance2DFilterTest"/>
 </ParaViewFilters>
