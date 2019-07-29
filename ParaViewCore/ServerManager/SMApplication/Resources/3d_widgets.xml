@@ -421,14 +421,14 @@
         <Documentation>Enable/Disable widget interaction.</Documentation>
       </IntVectorProperty>
 
-<!--      <SubProxy>
+      <SubProxy>
         <Proxy name="ContextItem"
                proxygroup="3d_widget_representations"
                proxyname="LineContextItem"></Proxy>
         <ExposedProperties>
           <Property name="Visibility" />
         </ExposedProperties>
-      </SubProxy>-->
+      </SubProxy>
 <!--      <SubProxy>
         <Proxy name="Widget"
                proxygroup="3d_widgets"

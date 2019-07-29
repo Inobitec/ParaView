@@ -42,6 +42,8 @@ protected:
    */
   void CreateVTKObjects() override;
 
+  vtkSMProxy* ContextItemProxy;
+
 private:
   vtkSMNew2DWidgetRepresentationProxy(const vtkSMNew2DWidgetRepresentationProxy&) = delete;
   void operator=(const vtkSMNew2DWidgetRepresentationProxy&) = delete;

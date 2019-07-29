@@ -5,7 +5,7 @@
 #include "vtkPVClientServerCoreRenderingModule.h"
 #include "vtkWeakPointer.h"
 
-class vtkWidgetRepresentation;
+class vtkContextItem;
 class vtkPVContextView;
 
 /**
@@ -27,8 +27,8 @@ public:
   /**
    * Get/Set the representation.
    */
-  void SetRepresentation(vtkWidgetRepresentation*);
-  vtkGetObjectMacro(Representation, vtkWidgetRepresentation);
+  void SetContextItem(vtkContextItem*);
+  vtkGetObjectMacro(ContextItem, vtkContextItem);
   //@}
 
   //@{
@@ -58,13 +58,17 @@ protected:
    */
   bool RemoveFromView(vtkView* view) override;
 
-  vtkWidgetRepresentation* Representation;
+  void OnContextItemModified();
+
+  vtkContextItem* ContextItem;
   bool Enabled;
   vtkWeakPointer<vtkPVContextView> View;
 
 private:
   vtk2DWidgetRepresentation(const vtk2DWidgetRepresentation&) = delete;
   void operator=(const vtk2DWidgetRepresentation&) = delete;
+
+  unsigned long ObserverTag;
 };
 
 #endif

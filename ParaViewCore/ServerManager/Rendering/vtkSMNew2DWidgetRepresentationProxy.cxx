@@ -1,7 +1,9 @@
 #include "vtkSMNew2DWidgetRepresentationProxy.h"
 
 #include "vtk2DWidgetRepresentation.h"
+#include "vtkClientServerStream.h"
 #include "vtkObjectFactory.h"
+#include "vtkPVSession.h"
 #include "vtkSMProperty.h"
 #include "vtkSMPropertyIterator.h"
 #include "vtkSMPropertyLink.h"
@@ -19,13 +21,15 @@ vtkStandardNewMacro(vtkSMNew2DWidgetRepresentationProxy);
 
 vtkSMNew2DWidgetRepresentationProxy::vtkSMNew2DWidgetRepresentationProxy()
   : vtkSMProxy()
+  , ContextItemProxy(nullptr)
   , Internal(new Internals())
 {
-
+  this->SetLocation(vtkPVSession::CLIENT_AND_SERVERS);
 }
 
 vtkSMNew2DWidgetRepresentationProxy::~vtkSMNew2DWidgetRepresentationProxy()
 {
+  this->ContextItemProxy = nullptr;
   if (this->Internal)
   {
     delete this->Internal;
@@ -38,6 +42,20 @@ void vtkSMNew2DWidgetRepresentationProxy::CreateVTKObjects()
   {
     return;
   }
+
+  this->ContextItemProxy = this->GetSubProxy("ContextItem");
+  if (!this->ContextItemProxy)
+  {
+    vtkErrorMacro("A representation proxy must be defined as a ContextItem sub-proxy");
+    return;
+  }
+  this->ContextItemProxy->SetLocation(vtkPVSession::RENDER_SERVER | vtkPVSession::CLIENT);
+
+  // Bind the Widget and the representations on the server side
+//  vtkClientServerStream stream;
+//  stream << vtkClientServerStream::Invoke << VTKOBJECT(this) << "SetContextItem"
+//         << VTKOBJECT(this->ContextItemProxy) << vtkClientServerStream::End;
+//  this->ExecuteStream(stream, false, vtkPVSession::RENDER_SERVER | vtkPVSession::CLIENT);
 
   this->Superclass::CreateVTKObjects();
   vtk2DWidgetRepresentation* clientObject =
