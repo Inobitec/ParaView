@@ -2,20 +2,56 @@
 
 #include "vtk2DWidgetRepresentation.h"
 #include "vtkClientServerStream.h"
+#include "vtkCommand.h"
+#include "vtkContextItem.h"
 #include "vtkObjectFactory.h"
 #include "vtkPVSession.h"
 #include "vtkSMProperty.h"
+#include "vtkSMPropertyGroup.h"
 #include "vtkSMPropertyIterator.h"
 #include "vtkSMPropertyLink.h"
+#include "vtkSMUncheckedPropertyHelper.h"
 
+#include <cassert>
 #include <list>
 
 struct vtkSMNew2DWidgetRepresentationProxy::Internals
 {
   typedef std::list<vtkSmartPointer<vtkSMLink> > LinksType;
   LinksType Links;
+
+  // Data about "controlled proxies".
+  vtkWeakPointer<vtkSMProxy> ControlledProxy;
+  vtkWeakPointer<vtkSMPropertyGroup> ControlledPropertyGroup;
 };
 
+class vtkSMNew2DWidgetRepresentationObserver : public vtkCommand
+{
+public:
+  static vtkSMNew2DWidgetRepresentationObserver* New()
+  {
+    return new vtkSMNew2DWidgetRepresentationObserver;
+  }
+  void Execute(vtkObject* caller, unsigned long event, void*) override
+  {
+    if (this->Proxy)
+    {
+      if (vtkContextItem::SafeDownCast(caller))
+      {
+        this->Proxy->ExecuteEvent(event);
+      }
+      else if (vtkSMProperty* prop = vtkSMProperty::SafeDownCast(caller))
+      {
+        this->Proxy->ProcessLinkedPropertyEvent(prop, event);
+      }
+    }
+  }
+  vtkSMNew2DWidgetRepresentationObserver()
+    : Proxy(nullptr)
+  {
+  }
+  vtkSMNew2DWidgetRepresentationProxy* Proxy;
+};
 
 vtkStandardNewMacro(vtkSMNew2DWidgetRepresentationProxy);
 
@@ -51,17 +87,17 @@ void vtkSMNew2DWidgetRepresentationProxy::CreateVTKObjects()
   }
   this->ContextItemProxy->SetLocation(vtkPVSession::RENDER_SERVER | vtkPVSession::CLIENT);
 
-  // Bind the Widget and the representations on the server side
-//  vtkClientServerStream stream;
-//  stream << vtkClientServerStream::Invoke << VTKOBJECT(this) << "SetContextItem"
-//         << VTKOBJECT(this->ContextItemProxy) << vtkClientServerStream::End;
-//  this->ExecuteStream(stream, false, vtkPVSession::RENDER_SERVER | vtkPVSession::CLIENT);
-
   this->Superclass::CreateVTKObjects();
+  // Bind the Widget and the representations on the server side
+  vtkClientServerStream stream;
+  stream << vtkClientServerStream::Invoke << VTKOBJECT(this) << "SetContextItem"
+         << VTKOBJECT(this->ContextItemProxy) << vtkClientServerStream::End;
+  this->ExecuteStream(stream, false, vtkPVSession::RENDER_SERVER | vtkPVSession::CLIENT);
+
   vtk2DWidgetRepresentation* clientObject =
     vtk2DWidgetRepresentation::SafeDownCast(this->GetClientSideObject());
 
-    // Since links copy values from input to output,
+  // Since links copy values from input to output,
   // we need to make sure that input properties i.e. the info
   // properties are not empty.
   this->UpdatePropertyInformation();
@@ -90,20 +126,107 @@ void vtkSMNew2DWidgetRepresentationProxy::CreateVTKObjects()
     }
   }
   piter->Delete();
-
 }
 
-void vtkSMNew2DWidgetRepresentationProxy::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkSMNew2DWidgetRepresentationProxy::ExecuteEvent(unsigned long event)
+{
+  this->InvokeEvent(event);
+
+  // TODO: add a implementation
+//  if (event == vtkCommand::StartInteractionEvent)
+//  {
+
+//  }
+//  else if (event == vtkCommand::InteractionEvent)
+//  {
+
+//  }
+//  else if (event == vtkCommand::EndInteractionEvent)
+//  {
+
+//  }
+}
+
+void vtkSMNew2DWidgetRepresentationProxy::ProcessLinkedPropertyEvent(
+  vtkSMProperty* caller, unsigned long event)
+{
+  assert(this->Internal->ControlledPropertyGroup);
+  vtkSMPropertyGroup* controlledPropertyGroup = this->Internal->ControlledPropertyGroup;
+  if (event == vtkCommand::UncheckedPropertyModifiedEvent)
+  {
+    // Whenever a controlled property's unchecked value changes, we copy that
+    // value
+    vtkSMProperty* controlledProperty = caller;
+    const char* function = controlledPropertyGroup->GetFunction(controlledProperty);
+    if (vtkSMProperty* widgetProperty = this->GetProperty(function))
+    {
+      // Copy unchecked values from controlledProperty to the checked values of
+      // this widget's property.
+      vtkSMUncheckedPropertyHelper chelper(controlledProperty);
+      vtkSMPropertyHelper(widgetProperty).Copy(chelper);
+      this->UpdateVTKObjects();
+    }
+  }
+  else if (event == vtkCommand::ModifiedEvent)
+  {
+    // Whenever a property on the widget is modified, we change the unchecked
+    // property on the linked controlled proxy.
+    vtkSMProperty* widgetProperty = caller;
+    const char* function = this->GetPropertyName(widgetProperty);
+    if (vtkSMProperty* controlledProperty = controlledPropertyGroup->GetProperty(function))
+    {
+      vtkSMPropertyHelper whelper(widgetProperty);
+      vtkSMUncheckedPropertyHelper(controlledProperty).Copy(whelper);
+    }
+  }
+}
+
+void vtkSMNew2DWidgetRepresentationProxy::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-bool vtkSMNew2DWidgetRepresentationProxy::LinkProperties(vtkSMProxy *controlledProxy, vtkSMPropertyGroup *controlledPropertyGroup)
+bool vtkSMNew2DWidgetRepresentationProxy::LinkProperties(
+  vtkSMProxy* controlledProxy, vtkSMPropertyGroup* controlledPropertyGroup)
 {
+  if (this->Internal->ControlledProxy != NULL)
+  {
+    vtkErrorMacro("Cannot `LinkProperties` with multiple proxies.");
+    return false;
+  }
+
+  this->Internal->ControlledProxy = controlledProxy;
+  this->Internal->ControlledPropertyGroup = controlledPropertyGroup;
+  for (unsigned int cc = 0, max = controlledPropertyGroup->GetNumberOfProperties(); cc < max; ++cc)
+  {
+    vtkSMProperty* prop = controlledPropertyGroup->GetProperty(cc);
+    const char* function = controlledPropertyGroup->GetFunction(prop);
+    if (vtkSMProperty* widgetProperty = this->GetProperty(function))
+    {
+      prop->AddObserver(vtkCommand::UncheckedPropertyModifiedEvent, this->Observer);
+      widgetProperty->AddObserver(vtkCommand::ModifiedEvent, this->Observer);
+
+      vtkSMUncheckedPropertyHelper helper(prop);
+      vtkSMPropertyHelper(widgetProperty).Copy(helper);
+    }
+  }
+  this->UpdateVTKObjects();
   return true;
 }
 
-bool vtkSMNew2DWidgetRepresentationProxy::UnlinkProperties(vtkSMProxy *controlledProxy)
+bool vtkSMNew2DWidgetRepresentationProxy::UnlinkProperties(vtkSMProxy* controlledProxy)
 {
+  if (this->Internal->ControlledProxy != controlledProxy)
+  {
+    vtkErrorMacro("Cannot 'UnlinkProperties' from a non-linked proxy.");
+    return false;
+  }
+
+  vtkSMPropertyGroup* controlledPropertyGroup = this->Internal->ControlledPropertyGroup;
+  for (unsigned int cc = 0, max = controlledPropertyGroup->GetNumberOfProperties(); cc < max; ++cc)
+  {
+    vtkSMProperty* prop = controlledPropertyGroup->GetProperty(cc);
+    prop->RemoveObserver(this->Observer);
+  }
   return true;
 }

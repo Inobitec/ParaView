@@ -4,6 +4,8 @@
 #include "vtkPVServerManagerRenderingModule.h" //needed for exports
 #include "vtkSMProxy.h"
 
+class vtkSMNew2DWidgetRepresentationObserver;
+
 /**
  * @class   vtkSMNew2DWidgetRepresentationProxy
  * @brief   proxy for 2D widgets and
@@ -43,6 +45,19 @@ protected:
   void CreateVTKObjects() override;
 
   vtkSMProxy* ContextItemProxy;
+  vtkSMNew2DWidgetRepresentationObserver* Observer;
+
+  friend class vtkSMNew2DWidgetRepresentationObserver;
+
+  /**
+   * Called every time the user interacts with the widget.
+   */
+  virtual void ExecuteEvent(unsigned long event);
+
+  /**
+   * Called everytime a controlled property's unchecked values change.
+   */
+  void ProcessLinkedPropertyEvent(vtkSMProperty* caller, unsigned long event);
 
 private:
   vtkSMNew2DWidgetRepresentationProxy(const vtkSMNew2DWidgetRepresentationProxy&) = delete;

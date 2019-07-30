@@ -1281,7 +1281,7 @@
            name="LineContextItem"
            post_creation="InstantiateHandleRepresentation">
       <IntVectorProperty animateable="1"
-                         command="SetVisibility"
+                         command="SetVisible"
                          default_values="1"
                          name="Visibility"
                          number_of_elements="1">

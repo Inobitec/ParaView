@@ -25,6 +25,8 @@ protected slots:
   void placeWidget() override;
 
 private:
+  void Init(vtkSMProxy* proxy, vtkSMPropertyGroup* smgroup);
+
   Q_DISABLE_COPY(pq2DLinePropertyWidget)
   pqPropertyLinks WidgetLinks;
 };

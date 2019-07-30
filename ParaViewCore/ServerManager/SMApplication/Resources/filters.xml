@@ -17344,14 +17344,8 @@ Every Nth Point.
           array.
       </Documentation>
     </StringVectorProperty>-->
-    <DoubleVectorProperty command="SetScalarRange"
-                          default_values="0 1"
-                          name="ScalarRange"
-                          number_of_elements="2">
-      <DoubleRangeDomain name="range" />
-      <Documentation>This property determines the range into which scalars
-      will be mapped.</Documentation>
-    </DoubleVectorProperty>
+<!--    <IntVectorProperty>
+    </IntVectorProperty>-->
     <DoubleVectorProperty animateable="1"
                           command="SetLowPoint"
                           default_values="0 0 0"
