@@ -1,10 +1,10 @@
 #include "vtk2DWidgetRepresentation.h"
 
+#include "vtkChartXY.h"
 #include "vtkCommand.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
 #include "vtkObjectFactory.h"
-#include "vtkPlotLine.h"
 #include "vtkPVContextView.h"
 #include "vtkPVXYChartView.h"
 
@@ -28,6 +28,18 @@ bool vtk2DWidgetRepresentation::AddToView(vtkView *view)
   {
     this->View = pvview;
     vtkContextScene* scene = this->View->GetContextView()->GetScene();
+    auto itemsCount = scene->GetNumberOfItems();
+    for(unsigned int i=0; i<itemsCount; ++i)
+    {
+      vtkAbstractContextItem* item = scene->GetItem(i);
+      vtkChartXY* chart = vtkChartXY::SafeDownCast(item);
+      if(chart)
+      {
+        auto transforms = chart->GetTransforms();
+        this->ContextItem->SetTransform(transforms.at(0));
+        break;
+      }
+    }
     scene->AddItem(this->ContextItem);
     return true;
   }
