@@ -17344,8 +17344,6 @@ Every Nth Point.
           array.
       </Documentation>
     </StringVectorProperty>-->
-<!--    <IntVectorProperty>
-    </IntVectorProperty>-->
     <DoubleVectorProperty animateable="1"
                           command="SetLowPoint"
                           default_values="0 0 0"
@@ -17415,52 +17413,25 @@ Every Nth Point.
         </DataTypeDomain>
       </InputProperty>
 
-    <DoubleVectorProperty command="SetScalarRange"
-                          default_values="0 1"
-                          name="ScalarRange"
-                          number_of_elements="2">
-      <DoubleRangeDomain name="range" />
-      <Documentation>This property determines the range into which scalars
-      will be mapped.</Documentation>
-    </DoubleVectorProperty>
-    <DoubleVectorProperty animateable="1"
-                          command="SetLowPoint"
-                          default_values="0 0 0"
-                          label="Low Point"
-                          name="LowPoint"
-                          number_of_elements="3" >
-      <BoundsDomain default_mode="min"
+    <IntVectorProperty animateable="1"
+                       command="SetPosition"
+                       default_values="0"
+                       label="Marker Position"
+                       name="MarkerPosition"
+                       number_of_elements="1" >
+<!--      <BoundsDomain default_mode="max"
                     mode="normal"
                     name="range">
         <RequiredProperties>
           <Property function="Input"
                     name="Input" />
         </RequiredProperties>
-      </BoundsDomain>
-      <Documentation>This property defines one end of the direction vector
-      (small scalar values).</Documentation>
-    </DoubleVectorProperty>
-    <DoubleVectorProperty animateable="1"
-                          command="SetHighPoint"
-                          default_values="0 0 1"
-                          label="High Point"
-                          name="HighPoint"
-                          number_of_elements="3" >
-      <BoundsDomain default_mode="max"
-                    mode="normal"
-                    name="range">
-        <RequiredProperties>
-          <Property function="Input"
-                    name="Input" />
-        </RequiredProperties>
-      </BoundsDomain>
-      <Documentation>This property defines the other end of the direction
-      vector (large scalar values).</Documentation>
-    </DoubleVectorProperty>
+      </BoundsDomain>-->
+      <Documentation>This property defines the position of the 2D marker.</Documentation>
+    </IntVectorProperty>
+
     <PropertyGroup panel_widget="2DLinePropertyWidget">
-    <!--<PropertyGroup panel_widget="InteractiveLine">-->
-      <Property function="Point1WorldPosition" name="LowPoint" />
-      <Property function="Point2WorldPosition" name="HighPoint" />
+      <Property function="MarkerPositionFunc" name="MarkerPosition" />
       <Property function="Input" name="Input" />
     </PropertyGroup>
 

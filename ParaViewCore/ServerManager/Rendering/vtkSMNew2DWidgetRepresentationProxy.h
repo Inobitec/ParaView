@@ -24,6 +24,13 @@ public:
 
   //@{
   /**
+   * Get Representation Proxy.
+   */
+  vtkGetObjectMacro(ContextItemProxy, vtkSMProxy);
+  //@}
+
+  //@{
+  /**
    * Called to link properties from a Widget to \c controlledProxy i.e. a
    * proxy whose properties are being manipulated using this Widget.
    * Currently, we only support linking with one controlled proxy at a time. One

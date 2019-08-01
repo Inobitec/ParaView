@@ -20,6 +20,8 @@ struct vtkSMNew2DWidgetRepresentationProxy::Internals
   typedef std::list<vtkSmartPointer<vtkSMLink> > LinksType;
   LinksType Links;
 
+  vtkWeakPointer<vtkContextItem> ContextItem;
+
   // Data about "controlled proxies".
   vtkWeakPointer<vtkSMProxy> ControlledProxy;
   vtkWeakPointer<vtkSMPropertyGroup> ControlledPropertyGroup;
@@ -58,14 +60,17 @@ vtkStandardNewMacro(vtkSMNew2DWidgetRepresentationProxy);
 vtkSMNew2DWidgetRepresentationProxy::vtkSMNew2DWidgetRepresentationProxy()
   : vtkSMProxy()
   , ContextItemProxy(nullptr)
+  , Observer(new vtkSMNew2DWidgetRepresentationObserver())
   , Internal(new Internals())
 {
   this->SetLocation(vtkPVSession::CLIENT_AND_SERVERS);
+  this->Observer->Proxy = this;
 }
 
 vtkSMNew2DWidgetRepresentationProxy::~vtkSMNew2DWidgetRepresentationProxy()
 {
   this->ContextItemProxy = nullptr;
+  this->Observer->Delete();
   if (this->Internal)
   {
     delete this->Internal;
@@ -96,6 +101,11 @@ void vtkSMNew2DWidgetRepresentationProxy::CreateVTKObjects()
 
   vtk2DWidgetRepresentation* clientObject =
     vtk2DWidgetRepresentation::SafeDownCast(this->GetClientSideObject());
+
+  this->Internal->ContextItem = clientObject->GetContextItem();
+  this->Internal->ContextItem->AddObserver(vtkCommand::StartInteractionEvent, this->Observer);
+  this->Internal->ContextItem->AddObserver(vtkCommand::EndInteractionEvent, this->Observer);
+  this->Internal->ContextItem->AddObserver(vtkCommand::InteractionEvent, this->Observer);
 
   // Since links copy values from input to output,
   // we need to make sure that input properties i.e. the info
@@ -133,18 +143,18 @@ void vtkSMNew2DWidgetRepresentationProxy::ExecuteEvent(unsigned long event)
   this->InvokeEvent(event);
 
   // TODO: add a implementation
-//  if (event == vtkCommand::StartInteractionEvent)
-//  {
-
-//  }
-//  else if (event == vtkCommand::InteractionEvent)
-//  {
-
-//  }
-//  else if (event == vtkCommand::EndInteractionEvent)
-//  {
-
-//  }
+  //  if (event == vtkCommand::StartInteractionEvent)
+  //  {
+  //    std::cout << "StartInteractionEvent" << std::endl;
+  //  }
+  //  else if (event == vtkCommand::InteractionEvent)
+  //  {
+  //    std::cout << "InteractionEvent" << std::endl;
+  //  }
+  //  else if (event == vtkCommand::EndInteractionEvent)
+  //  {
+  //    std::cout << "EndInteractionEvent" << std::endl;
+  //  }
 }
 
 void vtkSMNew2DWidgetRepresentationProxy::ProcessLinkedPropertyEvent(

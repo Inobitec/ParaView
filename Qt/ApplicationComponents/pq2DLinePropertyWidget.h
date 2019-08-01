@@ -14,21 +14,29 @@ class PQAPPLICATIONCOMPONENTS_EXPORT pq2DLinePropertyWidget : public pqInteracti
 {
   Q_OBJECT
   typedef pqInteractiveProperty2DWidget Superclass;
+
 public:
   pq2DLinePropertyWidget(vtkSMProxy* proxy, vtkSMPropertyGroup* smgroup, QWidget* parent = 0);
   ~pq2DLinePropertyWidget() override;
 
 protected slots:
   /**
-  * Places the interactive widget using current data source information.
-  */
+   * Places the interactive widget using current data source information.
+   */
   void placeWidget() override;
+  void onStartInteraction();
+  void onInteraction();
+  void onEndInteraction();
 
 private:
   void Init(vtkSMProxy* proxy, vtkSMPropertyGroup* smgroup);
+  void UpdatePosition();
 
   Q_DISABLE_COPY(pq2DLinePropertyWidget)
   pqPropertyLinks WidgetLinks;
+
+  class pqInternals;
+  pqInternals* Internals;
 };
 
 #endif
