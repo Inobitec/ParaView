@@ -298,4 +298,6 @@
   <Proxy group="filters" name="RulerFilter" icon=":/pqWidgets/Icons/pqRuler.png"/>
   <Proxy group="filters" name="Distance2DFilter"/>
   <Proxy group="filters" name="Distance2DFilterTest"/>
+  <Proxy group="filters" name="FFTFilter"/>
+  <Proxy group="filters" name="RFFTFilter"/>
 </ParaViewFilters>
