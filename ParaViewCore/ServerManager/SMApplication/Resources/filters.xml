@@ -17566,5 +17566,77 @@ Every Nth Point.
     </SourceProxy>
     <!-- End vtkRFFTFilter -->
 
+<!-- ==================================================================== -->
+    <SourceProxy class="vtkEqualizerFilter"
+                 name="EqualizerFilter"
+                 label="Equalizer Filter">
+      <Documentation long_help="Long help."
+                     short_help="Short help.">
+           Multiline documentation.
+           Next line.
+           Next line.
+      </Documentation>
+      <InputProperty name="Input"
+                     command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain composite_data_supported="1"
+                        name="input_type">
+          <DataType value="vtkTable"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+    <StringVectorProperty name="Array"
+                          command="SetArray"
+                          number_of_elements="1"
+                          animateable="0">
+          <ArrayListDomain
+            name="array_list" attribute_type="Scalars"
+            input_domain_name="inputs_array">
+            <RequiredProperties>
+              <Property name="Input" function="Input"/>
+            </RequiredProperties>
+          </ArrayListDomain>
+        <Documentation>
+          Specify the name of a scalar array which will be used to FFT.
+        </Documentation>
+    </StringVectorProperty>
+
+    <IntVectorProperty command="SetAllColumns"
+                       default_values="0"
+                       name="AllColumns"
+                       number_of_elements="1">
+      <BooleanDomain name="bool" />
+        <Documentation>Use for all columns of table.
+      </Documentation>
+    </IntVectorProperty>
+
+    <IntVectorProperty animateable="1"
+                       command="SetPosition"
+                       default_values="0"
+                       label="Marker Position"
+                       name="MarkerPosition"
+                       number_of_elements="1" >
+      <Documentation>This property defines the position of the 2D marker.</Documentation>
+    </IntVectorProperty>
+
+
+    <PropertyGroup panel_widget="EqualizerPropertyWidget">
+      <Property function="MarkerPositionFunc" name="MarkerPosition" />
+      <Property function="Input" name="Input" />
+    </PropertyGroup>-->
+
+    <Hints>
+      <!-- View can be used to specify the preferred view for the proxy -->
+      <PipelineIcon name="XYChartView" />
+      <View type="XYChartView" />
+      <Plotable />
+    </Hints>
+
+    </SourceProxy>
+    <!-- End vtkRFFTFilter -->
+
   </ProxyGroup>
 </ServerManagerConfiguration>

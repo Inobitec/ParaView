@@ -53,6 +53,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pqDistancePropertyWidget.h"
 #include "pqDoubleRangeSliderPropertyWidget.h"
 #include "pqEnableWidgetDecorator.h"
+#include "pqEqualizerPropertyWidget.h"
 #include "pqFileNamePropertyWidget.h"
 #include "pqFontPropertyWidget.h"
 #include "pqGenericPropertyWidgetDecorator.h"
@@ -302,6 +303,10 @@ pqPropertyWidget* pqStandardPropertyWidgetInterface::createWidgetForPropertyGrou
   else if (panelWidget == "2DLinePropertyWidget")
   {
     return new pq2DLinePropertyWidget(proxy, group, parentWidget);
+  }
+  else if (panelWidget == "EqualizerPropertyWidget")
+  {
+    return new pqEqualizerPropertyWidget(proxy, group, parentWidget);
   }
   else if (panelWidget == "cinema_export_selector")
   {

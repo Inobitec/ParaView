@@ -93,6 +93,7 @@ set(classes
   pqEditCameraReaction
   pqEditColorMapReaction
   pqEditScalarBarReaction
+  pqEqualizerPropertyWidget
   pqEnableWidgetDecorator
   pqExampleVisualizationsDialog
   pqExampleVisualizationsDialogReaction

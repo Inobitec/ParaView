@@ -300,4 +300,5 @@
   <Proxy group="filters" name="Distance2DFilterTest"/>
   <Proxy group="filters" name="FFTFilter"/>
   <Proxy group="filters" name="RFFTFilter"/>
+  <Proxy group="filters" name="EqualizerFilter"/>
 </ParaViewFilters>
