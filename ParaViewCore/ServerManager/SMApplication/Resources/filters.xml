@@ -17622,9 +17622,18 @@ Every Nth Point.
       <Documentation>This property defines the position of the 2D marker.</Documentation>
     </IntVectorProperty>
 
+    <StringVectorProperty animateable="1"
+                          command="SetPoints"
+                          label="Equalizer Points"
+                          name="EqualizerPoints"
+                          number_of_elements="1" >
+      <Documentation>This property defines the interactive points of the equalizer.</Documentation>
+    </StringVectorProperty>
+
 
     <PropertyGroup panel_widget="EqualizerPropertyWidget">
       <Property function="MarkerPositionFunc" name="MarkerPosition" />
+      <Property function="EqualizerPointsFunc" name="EqualizerPoints" />
       <Property function="Input" name="Input" />
     </PropertyGroup>-->
 

@@ -1489,9 +1489,11 @@ bool vtkSMPropertyHelper::Copy(vtkSMPropertyHelper& source)
       return this->CopyInternal<double>(source);
     case IDTYPE:
       return this->CopyInternal<vtkIdType>(source);
+    case STRING:
+      return this->CopyInternal<std::string>(source);
     default:
       vtkSMPropertyHelperWarningMacro(
-        "Copy currently only supported for int/double/idtype properties.");
+        "Copy currently only supported for int/double/idtype/string properties.");
       return false;
   }
 }

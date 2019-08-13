@@ -1,6 +1,6 @@
 #include "pqEqualizerPropertyWidget.h"
 
-#include "vtkLineContextItem.h"
+#include "vtkEqualizerContextItem.h"
 #include "vtkPVArrayInformation.h"
 #include "vtkPVDataInformation.h"
 #include "vtkPVDataSetAttributesInformation.h"
@@ -21,7 +21,8 @@
 
 class pqEqualizerPropertyWidget::pqInternals
 {
-
+public:
+  pqLineEdit* pointsLE;
 };
 
 
@@ -78,8 +79,10 @@ void pqEqualizerPropertyWidget::Init(vtkSMProxy *proxy, vtkSMPropertyGroup *smgr
   this->WidgetLinks.addPropertyLink(
     visibility, "checked", SIGNAL(toggled(bool)), wdgProxy, wdgProxy->GetProperty("Visibility"));
 
-  // this->Internals->posWidget = new pqIntRangeWidget(this);
-  // pqDoubleLineEdit* pos_widget = new pqDoubleLineEdit(this);
+  this->Internals->pointsLE = new pqLineEdit(this);
+  this->Internals->pointsLE->setEnabled(false);
+  layout->addWidget(this->Internals->pointsLE);
+
   vtkPVDataSetAttributesInformation* fdi = input->GetDataInformation(0)->GetRowDataInformation();
   if (!fdi)
     return;
@@ -87,17 +90,15 @@ void pqEqualizerPropertyWidget::Init(vtkSMProxy *proxy, vtkSMPropertyGroup *smgr
   if (!array_info)
     return;
   auto row_count = array_info->GetNumberOfTuples();
-//  this->Internals->posWidget->setMinimum(0);
-//  this->Internals->posWidget->setMaximum(row_count - 1);
 
-//  layout->addWidget(this->Internals->posWidget);
-
-//  if (vtkSMProperty* p1 = smgroup->GetProperty("MarkerPositionFunc"))
-//  {
-//    this->addPropertyLink(this->Internals->posWidget, "value", SIGNAL(valueEdited(int)), p1, 0);
-//    this->WidgetLinks.addPropertyLink(this->Internals->posWidget, "value", SIGNAL(valueEdited(int)),
-//      wdgProxy, wdgProxy->GetProperty("MarkerPositionFunc"));
-//  }
+  if (vtkSMProperty* p1 = smgroup->GetProperty("EqualizerPointsFunc"))
+  {
+    this->addPropertyLink(this->Internals->pointsLE, "text2", SIGNAL(textChangedAndEditingFinished()), p1, 0);
+    this->WidgetLinks.addPropertyLink(this->Internals->pointsLE, "text2", SIGNAL(textChangedAndEditingFinished()),
+      wdgProxy, wdgProxy->GetProperty("EqualizerPointsFunc"));
+  }
+  QString init_points(QString("0,0; %1,0;").arg(row_count));
+  this->Internals->pointsLE->setText(init_points);
 
   connect(this, SIGNAL(startInteraction()), this, SLOT(onStartInteraction()));
   connect(this, SIGNAL(interaction()), this, SLOT(onInteraction()));
@@ -106,5 +107,9 @@ void pqEqualizerPropertyWidget::Init(vtkSMProxy *proxy, vtkSMPropertyGroup *smgr
 
 void pqEqualizerPropertyWidget::UpdatePosition()
 {
-
+  vtkSMNew2DWidgetRepresentationProxy* wdgProxy = this->widgetProxy();
+  vtkSMProxy* contextProxy = wdgProxy->GetContextItemProxy();
+  vtkEqualizerContextItem* item = vtkEqualizerContextItem::SafeDownCast(contextProxy->GetClientSideObject());
+  auto points = item->GetPoints();
+  this->Internals->pointsLE->setText(QString::fromStdString(points));
 }

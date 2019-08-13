@@ -37,6 +37,9 @@ bool vtk2DWidgetRepresentation::AddToView(vtkView *view)
       {
         auto transforms = chart->GetTransforms();
         this->ContextItem->SetTransform(transforms.at(0));
+// TODO: Add to scene or chart?
+//        chart->AddItem(this->ContextItem);
+//        return true;
         break;
       }
     }

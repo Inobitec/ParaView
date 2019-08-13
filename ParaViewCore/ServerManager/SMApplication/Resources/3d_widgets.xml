@@ -459,6 +459,7 @@
         <ExposedProperties>
           <Property name="Visibility" />
           <Property name="MarkerPositionFunc" />
+          <Property name="EqualizerPointsFunc" />
         </ExposedProperties>
       </SubProxy>
 
@@ -1342,6 +1343,13 @@
                          number_of_elements="1" >
         <Documentation>This property defines the position of the 2D marker.</Documentation>
       </IntVectorProperty>
+      <StringVectorProperty animateable="1"
+                            command="SetPoints"
+                            label="Equalizer Points"
+                            name="EqualizerPointsFunc"
+                            number_of_elements="1" >
+        <Documentation>This property defines the interactive points of the equalizer.</Documentation>
+       </StringVectorProperty>
     </Proxy>
     <!-- End of LineContextItem -->
     <!-- ================================================================== -->
