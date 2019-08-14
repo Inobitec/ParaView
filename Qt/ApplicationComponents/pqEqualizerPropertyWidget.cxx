@@ -5,6 +5,7 @@
 #include "vtkPVDataInformation.h"
 #include "vtkPVDataSetAttributesInformation.h"
 #include "vtkSMNew2DWidgetRepresentationProxy.h"
+#include "vtkSMProperty.h"
 #include "vtkSMPropertyGroup.h"
 #include "vtkSMPropertyHelper.h"
 #include "vtkSMSourceProxy.h"
@@ -68,7 +69,7 @@ void pqEqualizerPropertyWidget::Init(vtkSMProxy *proxy, vtkSMPropertyGroup *smgr
   if (!input)
     return;
 
-  vtkSMProxy* wdgProxy = this->widgetProxy();
+  vtkSMNew2DWidgetRepresentationProxy* wdgProxy = this->widgetProxy();
 
   QVBoxLayout* layout = new QVBoxLayout(this);
   layout->setMargin(pqPropertiesPanel::suggestedMargin());
@@ -89,7 +90,6 @@ void pqEqualizerPropertyWidget::Init(vtkSMProxy *proxy, vtkSMPropertyGroup *smgr
   vtkPVArrayInformation* array_info = fdi->GetArrayInformation(0);
   if (!array_info)
     return;
-  auto row_count = array_info->GetNumberOfTuples();
 
   if (vtkSMProperty* p1 = smgroup->GetProperty("EqualizerPointsFunc"))
   {
@@ -97,8 +97,16 @@ void pqEqualizerPropertyWidget::Init(vtkSMProxy *proxy, vtkSMPropertyGroup *smgr
     this->WidgetLinks.addPropertyLink(this->Internals->pointsLE, "text2", SIGNAL(textChangedAndEditingFinished()),
       wdgProxy, wdgProxy->GetProperty("EqualizerPointsFunc"));
   }
+
+  auto row_count = array_info->GetNumberOfTuples();
   QString init_points(QString("0,0; %1,0;").arg(row_count));
   this->Internals->pointsLE->setText(init_points);
+
+  vtkSMProxy* contextProxy = wdgProxy->GetContextItemProxy();
+  vtkEqualizerContextItem* item = vtkEqualizerContextItem::SafeDownCast(contextProxy->GetClientSideObject());
+  item->SetPoints(init_points.toStdString());
+
+  smgroup->GetProperty("EqualizerPointsFunc")->Modified();
 
   connect(this, SIGNAL(startInteraction()), this, SLOT(onStartInteraction()));
   connect(this, SIGNAL(interaction()), this, SLOT(onInteraction()));
