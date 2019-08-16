@@ -18,12 +18,15 @@
 #include "pqPropertyLinks.h"
 
 #include <QCheckBox>
+#include <QPushButton>
 #include <QVBoxLayout>
 
 class pqEqualizerPropertyWidget::pqInternals
 {
 public:
   pqLineEdit* pointsLE;
+  QPushButton* savePB;
+  QPushButton* loadPB;
 };
 
 
@@ -79,6 +82,12 @@ void pqEqualizerPropertyWidget::Init(vtkSMProxy *proxy, vtkSMPropertyGroup *smgr
 
   this->WidgetLinks.addPropertyLink(
     visibility, "checked", SIGNAL(toggled(bool)), wdgProxy, wdgProxy->GetProperty("Visibility"));
+
+  this->Internals->savePB = new QPushButton(tr("Save"), this);
+  this->Internals->loadPB = new QPushButton(tr("Load"), this);
+  layout->addWidget(this->Internals->savePB);
+  layout->addWidget(this->Internals->loadPB);
+  // TODO: add an implementation
 
   this->Internals->pointsLE = new pqLineEdit(this);
   this->Internals->pointsLE->setEnabled(false);

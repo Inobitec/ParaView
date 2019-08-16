@@ -17519,7 +17519,8 @@ Every Nth Point.
            Next line.
       </Documentation>
       <InputProperty name="Input"
-                     command="SetInputConnection">
+                     command="SetInputConnection"
+                     port_index="0">
         <ProxyGroupDomain name="groups">
           <Group name="sources"/>
           <Group name="filters"/>
@@ -17529,6 +17530,22 @@ Every Nth Point.
           <DataType value="vtkTable"/>
         </DataTypeDomain>
       </InputProperty>
+    <InputProperty command="SetInputConnection"
+                   name="Points"
+                   null_on_empty="1"
+                   port_index="1">
+      <Hints>
+        <Optional />
+      </Hints>
+      <ProxyGroupDomain name="groups">
+        <Group name="sources" />
+        <Group name="filters" />
+      </ProxyGroupDomain>
+      <DataTypeDomain composite_data_supported="1"
+                      name="input_type">
+        <DataType value="vtkTable"/>
+      </DataTypeDomain>
+    </InputProperty>
 
     <StringVectorProperty name="Array"
                           command="SetArray"
@@ -17554,7 +17571,6 @@ Every Nth Point.
         <Documentation>Use for all columns of table.
       </Documentation>
     </IntVectorProperty>
-
 
     <Hints>
       <!-- View can be used to specify the preferred view for the proxy -->
@@ -17613,15 +17629,6 @@ Every Nth Point.
       </Documentation>
     </IntVectorProperty>
 
-    <IntVectorProperty animateable="1"
-                       command="SetPosition"
-                       default_values="0"
-                       label="Marker Position"
-                       name="MarkerPosition"
-                       number_of_elements="1" >
-      <Documentation>This property defines the position of the 2D marker.</Documentation>
-    </IntVectorProperty>
-
     <StringVectorProperty animateable="1"
                           command="SetPoints"
                           label="Equalizer Points"
@@ -17632,10 +17639,12 @@ Every Nth Point.
 
 
     <PropertyGroup panel_widget="EqualizerPropertyWidget">
-      <Property function="MarkerPositionFunc" name="MarkerPosition" />
       <Property function="EqualizerPointsFunc" name="EqualizerPoints" />
       <Property function="Input" name="Input" />
     </PropertyGroup>-->
+
+    <OutputPort index="0" name="Spectrum" />
+    <OutputPort index="1" name="Points" />
 
     <Hints>
       <!-- View can be used to specify the preferred view for the proxy -->
