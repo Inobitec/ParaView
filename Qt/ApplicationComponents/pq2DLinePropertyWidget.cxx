@@ -89,7 +89,8 @@ void pq2DLinePropertyWidget::Init(vtkSMProxy* proxy, vtkSMPropertyGroup* smgroup
     return;
   auto row_count = array_info->GetNumberOfTuples();
   this->Internals->posWidget->setMinimum(0);
-  this->Internals->posWidget->setMaximum(row_count - 1);
+//  this->Internals->posWidget->setMaximum(row_count - 1);
+  this->Internals->posWidget->setMaximum(500); // FD/2,
 
   layout->addWidget(this->Internals->posWidget);
 
