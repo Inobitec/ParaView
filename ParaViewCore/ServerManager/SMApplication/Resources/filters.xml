@@ -17604,6 +17604,15 @@ Every Nth Point.
         </DataTypeDomain>
       </InputProperty>
 
+    <IntVectorProperty command="SetSamplingFrequency"
+                       default_values="1000"
+                       name="SamplingFrequency"
+                       number_of_elements="1">
+      <Documentation>
+        Set sampling frequency of signal.
+      </Documentation>
+    </IntVectorProperty>
+
     <StringVectorProperty name="Array"
                           command="SetArray"
                           number_of_elements="1"
