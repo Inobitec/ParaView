@@ -4,11 +4,13 @@
 #include "vtkPVArrayInformation.h"
 #include "vtkPVDataInformation.h"
 #include "vtkPVDataSetAttributesInformation.h"
+#include "vtkSMIntVectorProperty.h"
 #include "vtkSMNew2DWidgetRepresentationProxy.h"
 #include "vtkSMProperty.h"
 #include "vtkSMPropertyGroup.h"
 #include "vtkSMPropertyHelper.h"
 #include "vtkSMSourceProxy.h"
+#include "vtkSMStringVectorProperty.h"
 #include "vtkSMUncheckedPropertyHelper.h"
 
 #include "pqDoubleLineEdit.h"
@@ -25,13 +27,14 @@ class pqEqualizerPropertyWidget::pqInternals
 {
 public:
   pqLineEdit* pointsLE;
+  QCheckBox* visibilityCB;
   QPushButton* savePB;
   QPushButton* loadPB;
   vtkEqualizerContextItem* EqualizerItem;
 };
 
-
-pqEqualizerPropertyWidget::pqEqualizerPropertyWidget(vtkSMProxy *proxy, vtkSMPropertyGroup *smgroup, QWidget *parent)
+pqEqualizerPropertyWidget::pqEqualizerPropertyWidget(
+  vtkSMProxy* proxy, vtkSMPropertyGroup* smgroup, QWidget* parent)
   : Superclass("representations", "EqualizerWidgetRepresentation", proxy, smgroup, parent)
   , Internals(new pqInternals())
 {
@@ -64,9 +67,8 @@ void pqEqualizerPropertyWidget::onEndInteraction()
   UpdatePosition();
 }
 
-void pqEqualizerPropertyWidget::Init(vtkSMProxy *proxy, vtkSMPropertyGroup *smgroup)
+void pqEqualizerPropertyWidget::Init(vtkSMProxy* proxy, vtkSMPropertyGroup* smgroup)
 {
-  Q_UNUSED(proxy);
   std::cout << "pqEqualizerPropertyWidget::Init" << std::endl;
   vtkSMSourceProxy* input = vtkSMSourceProxy::SafeDownCast(
     vtkSMUncheckedPropertyHelper(this->proxy(), "Input").GetAsProxy(0));
@@ -103,39 +105,50 @@ void pqEqualizerPropertyWidget::Init(vtkSMProxy *proxy, vtkSMPropertyGroup *smgr
 
   if (vtkSMProperty* p1 = smgroup->GetProperty("EqualizerPointsFunc"))
   {
-    this->addPropertyLink(this->Internals->pointsLE, "text2", SIGNAL(textChangedAndEditingFinished()), p1, 0);
-    this->WidgetLinks.addPropertyLink(this->Internals->pointsLE, "text2", SIGNAL(textChangedAndEditingFinished()),
-      wdgProxy, wdgProxy->GetProperty("EqualizerPointsFunc"));
+    this->addPropertyLink(
+      this->Internals->pointsLE, "text2", SIGNAL(textChangedAndEditingFinished()), p1, 0);
+    this->WidgetLinks.addPropertyLink(this->Internals->pointsLE, "text2",
+      SIGNAL(textChangedAndEditingFinished()), wdgProxy,
+      wdgProxy->GetProperty("EqualizerPointsFunc"));
   }
 
   connect(this, SIGNAL(startInteraction()), this, SLOT(onStartInteraction()));
   connect(this, SIGNAL(interaction()), this, SLOT(onInteraction()));
   connect(this, SIGNAL(endInteraction()), this, SLOT(onEndInteraction()));
 
+  vtkSMStringVectorProperty* pointsProp =
+    vtkSMStringVectorProperty::SafeDownCast(proxy->GetProperty("EqualizerPoints"));
+  std::string points = pointsProp->GetElement(0);
+  if (points.empty())
+  {
+    vtkSMIntVectorProperty* sapmlingFreqProp =
+      vtkSMIntVectorProperty::SafeDownCast(proxy->GetProperty("SamplingFrequency"));
+    auto frequency = sapmlingFreqProp->GetElement(0);
 
-  // TODO: add real frequency
-  constexpr auto frequency = 1000;
-  // auto row_count = array_info->GetNumberOfTuples();
-  QString init_points(QString("0,0; %1,0;").arg(frequency/2));
-  this->Internals->pointsLE->setText(init_points);
+    QString init_points(QString("0,0; %1,0;").arg(frequency / 2));
+    this->Internals->pointsLE->setText(init_points);
+    points = init_points.toStdString();
+  }
+  else
+    this->Internals->pointsLE->setText(QString::fromStdString(points));
 
   vtkSMProxy* contextProxy = wdgProxy->GetContextItemProxy();
-  this->Internals->EqualizerItem = vtkEqualizerContextItem::SafeDownCast(contextProxy->GetClientSideObject());
-  this->Internals->EqualizerItem->SetPoints(init_points.toStdString());
+  this->Internals->EqualizerItem =
+    vtkEqualizerContextItem::SafeDownCast(contextProxy->GetClientSideObject());
+  this->Internals->EqualizerItem->SetPoints(points);
 
   smgroup->GetProperty("EqualizerPointsFunc")->Modified();
 
   connect(visibility, &QCheckBox::toggled, [this](bool visible) {
-    if(visible)
+    if (visible)
       this->Internals->EqualizerItem->SetPoints(this->Internals->pointsLE->text().toStdString());
   });
 
-  this->reset();
 }
 
 void pqEqualizerPropertyWidget::UpdatePosition()
 {
-  if(!this->Internals->EqualizerItem)
+  if (!this->Internals->EqualizerItem)
     return;
   auto points = this->Internals->EqualizerItem->GetPoints();
   this->Internals->pointsLE->setText(QString::fromStdString(points));
