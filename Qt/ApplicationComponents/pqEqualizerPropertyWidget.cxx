@@ -13,13 +13,16 @@
 #include "vtkSMStringVectorProperty.h"
 #include "vtkSMUncheckedPropertyHelper.h"
 
+#include "pqCoreUtilities.h"
 #include "pqDoubleLineEdit.h"
+#include "pqFileDialog.h"
 #include "pqIntRangeWidget.h"
 #include "pqLineEdit.h"
 #include "pqPropertiesPanel.h"
 #include "pqPropertyLinks.h"
 
 #include <QCheckBox>
+#include <QFileDialog>
 #include <QPushButton>
 #include <QVBoxLayout>
 
@@ -67,6 +70,64 @@ void pqEqualizerPropertyWidget::onEndInteraction()
   UpdatePosition();
 }
 
+void pqEqualizerPropertyWidget::saveEqualizer()
+{
+  // pqServer* server = pqActiveObjects::instance().activeServer();
+  pqFileDialog dialog(
+    nullptr, pqCoreUtilities::mainWidget(), tr("Save Equalizer:"), QString(), "CSV (*.csv)");
+  dialog.setFileMode(pqFileDialog::AnyFile);
+  if (QFileDialog::Accepted == dialog.exec())
+  {
+    QStringList files = dialog.getSelectedFiles();
+    const QString& fileName = files.first();
+    QFile file(fileName);
+    if (file.open(QFile::WriteOnly | QFile::Truncate))
+    {
+      QTextStream stream(&file);
+      // stream << value1 << "\t" << value2 << "\n"; // this writes first line with two columns
+      QString points = QString::fromStdString(this->Internals->EqualizerItem->GetPoints()); // or this->Internals->pointsLE->text();
+      QStringList pointsList = points.split(';');
+      for(const QString& point: pointsList)
+        stream << point << "\n";
+    }
+    file.close();
+  }
+}
+
+void pqEqualizerPropertyWidget::loadEqualizer()
+{
+  // pqServer* server = pqActiveObjects::instance().activeServer();
+  pqFileDialog dialog(
+    nullptr, pqCoreUtilities::mainWidget(), tr("Load Equalizer:"), QString(), "CSV (*.csv)");
+  dialog.setFileMode(pqFileDialog::ExistingFile);
+  if (QFileDialog::Accepted == dialog.exec())
+  {
+    QStringList files = dialog.getSelectedFiles();
+    const QString& fileName = files.first();
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly))
+    {
+      qDebug() << file.errorString();
+      return;
+    }
+
+    QString points;
+    while (!file.atEnd())
+    {
+      QByteArray line = file.readLine();
+      // QList<QByteArray> point = line.split(',');
+      points.append(line);
+      points.append(';');
+    }
+
+    file.close();
+    this->Internals->pointsLE->setText(points);
+    this->Internals->EqualizerItem->SetPoints(points.toStdString());
+    this->proxy()->UpdateVTKObjects();
+    this->proxy()->Modified();
+  }
+}
+
 void pqEqualizerPropertyWidget::Init(vtkSMProxy* proxy, vtkSMPropertyGroup* smgroup)
 {
   std::cout << "pqEqualizerPropertyWidget::Init" << std::endl;
@@ -90,7 +151,10 @@ void pqEqualizerPropertyWidget::Init(vtkSMProxy* proxy, vtkSMPropertyGroup* smgr
   this->Internals->loadPB = new QPushButton(tr("Load"), this);
   layout->addWidget(this->Internals->savePB);
   layout->addWidget(this->Internals->loadPB);
-  // TODO: add an implementation
+  connect(this->Internals->savePB, &QPushButton::clicked, this,
+    &pqEqualizerPropertyWidget::saveEqualizer);
+  connect(this->Internals->loadPB, &QPushButton::clicked, this,
+    &pqEqualizerPropertyWidget::loadEqualizer);
 
   this->Internals->pointsLE = new pqLineEdit(this);
   this->Internals->pointsLE->setEnabled(false);
@@ -143,7 +207,6 @@ void pqEqualizerPropertyWidget::Init(vtkSMProxy* proxy, vtkSMPropertyGroup* smgr
     if (visible)
       this->Internals->EqualizerItem->SetPoints(this->Internals->pointsLE->text().toStdString());
   });
-
 }
 
 void pqEqualizerPropertyWidget::UpdatePosition()

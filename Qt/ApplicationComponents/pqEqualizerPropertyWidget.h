@@ -29,6 +29,10 @@ protected slots:
   void onInteraction();
   void onEndInteraction();
 
+private slots:
+  void saveEqualizer();
+  void loadEqualizer();
+
 private:
   void Init(vtkSMProxy* proxy, vtkSMPropertyGroup* smgroup);
   void UpdatePosition();
