@@ -92,6 +92,7 @@ set(classes
   vtkPVSynchronizedRenderer
   vtkPVView
   vtkPVXYChartView
+  vtkPVXYChartViewInteractive
   vtkPointGaussianRepresentation
   vtkPolarAxesRepresentation
   vtkProgressBarSourceRepresentation

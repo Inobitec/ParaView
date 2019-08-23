@@ -6,7 +6,7 @@
 #include "vtkContextView.h"
 #include "vtkObjectFactory.h"
 #include "vtkPVContextView.h"
-#include "vtkPVXYChartView.h"
+#include "vtkPVXYChartViewInteractive.h"
 
 vtkStandardNewMacro(vtk2DWidgetRepresentation);
 
@@ -23,7 +23,7 @@ vtk2DWidgetRepresentation::~vtk2DWidgetRepresentation() {}
 
 bool vtk2DWidgetRepresentation::AddToView(vtkView *view)
 {
-  vtkPVContextView* pvview = vtkPVContextView::SafeDownCast(view);
+  vtkPVXYChartViewInteractive* pvview = vtkPVXYChartViewInteractive::SafeDownCast(view);
   if(pvview)
   {
     this->View = pvview;
