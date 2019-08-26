@@ -7917,32 +7917,6 @@
 
     <!-- =================================================================== -->
     <ChartRepresentationProxy base_proxygroup="representations"
-                              base_proxyname="XYChartRepresentation"
-                              class="vtkXYChartRepresentationExt"
-                              name="XYChartRepresentationExt"
-                              processes="client|dataserver|renderserver"
-                              post_creation="SetChartTypeToLine">
-      <Documentation>Representation used by XYChartView.</Documentation>
-
-        <IntVectorProperty command="SetCurrentIndex"
-                           default_values="1"
-                           name="CurrentIndex"
-                           panel_visibility="never"
-                           number_of_elements="1">
-
-        </IntVectorProperty>
-
-        <IntVectorProperty command="SetCountOfArrays"
-                           default_values="1"
-                           name="CountOfArrays"
-                           panel_visibility="never"
-                           number_of_elements="1">
-
-        </IntVectorProperty>
-    </ChartRepresentationProxy>
-
-    <!-- =================================================================== -->
-    <ChartRepresentationProxy base_proxygroup="representations"
                               base_proxyname="XYChartRepresentationBase"
                               class="vtkXYChartRepresentation"
                               name="XYPointChartRepresentation"

@@ -37,7 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pqComparativeRenderView.h"
 #include "pqComparativeXYBarChartView.h"
 #include "pqComparativeXYChartView.h"
-#include "pqMultiLinesView.h"
 #include "pqMultiSliceView.h"
 #include "pqParallelCoordinatesChartView.h"
 #include "pqPipelineFilter.h"
@@ -141,11 +140,6 @@ inline pqProxy* CreatePQView(
     {
       return new pqPlotMatrixView(
         group, name, vtkSMContextViewProxy::SafeDownCast(proxy), server, parent);
-    }
-    if (xmlname == "MultiLinesView")
-    {
-        return new pqMultiLinesView(
-            group, name, vtkSMContextViewProxy::SafeDownCast(proxy), server, parent);
     }
     // View XML name have not been recognized, default to a pqXYChartView
     return new pqXYChartView(
