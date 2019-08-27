@@ -82,13 +82,13 @@ public:
     if (helper.GetNumberOfElements() == 0)
     {
       // if there is no proxy, 'its value' does not match this->Value.
-      bool status = false;
+      bool status = this->Values.size() == 1 && this->Values[0] == "null";
       return this->Inverse ? !status : status;
     }
 
     if (vtkSMProxyProperty::SafeDownCast(this->Property))
     {
-      if (vtkSMProxyListDomain::SafeDownCast(this->Property->FindDomain("vtkSMProxyListDomain")))
+      if (this->Property->FindDomain<vtkSMProxyListDomain>())
       {
         bool status = false;
         for (auto it = this->Values.begin(); helper.GetAsProxy(0) && it != this->Values.end(); ++it)
@@ -128,8 +128,7 @@ public:
       }
 
       // Look for array list domain
-      vtkSMArrayListDomain* ald =
-        vtkSMArrayListDomain::SafeDownCast(this->Property->FindDomain("vtkSMArrayListDomain"));
+      auto ald = this->Property->FindDomain<vtkSMArrayListDomain>();
       if (!ald)
       {
         qCritical() << "The NumberOfComponents attribute requires an ArrayListDomain in the "

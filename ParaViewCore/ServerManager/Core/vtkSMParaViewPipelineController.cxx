@@ -180,9 +180,8 @@ bool vtkSMParaViewPipelineController::CreateProxiesForProxyListDomains(vtkSMProx
   iter.TakeReference(proxy->NewPropertyIterator());
   for (iter->Begin(); !iter->IsAtEnd(); iter->Next())
   {
-    vtkSMProxyListDomain* pld = iter->GetProperty()
-      ? vtkSMProxyListDomain::SafeDownCast(iter->GetProperty()->FindDomain("vtkSMProxyListDomain"))
-      : NULL;
+    auto pld =
+      iter->GetProperty() ? iter->GetProperty()->FindDomain<vtkSMProxyListDomain>() : nullptr;
     if (pld)
     {
       pld->CreateProxies(proxy->GetSessionProxyManager());
@@ -221,9 +220,8 @@ void vtkSMParaViewPipelineController::RegisterProxiesForProxyListDomains(vtkSMPr
   iter.TakeReference(proxy->NewPropertyIterator());
   for (iter->Begin(); !iter->IsAtEnd(); iter->Next())
   {
-    vtkSMProxyListDomain* pld = iter->GetProperty()
-      ? vtkSMProxyListDomain::SafeDownCast(iter->GetProperty()->FindDomain("vtkSMProxyListDomain"))
-      : NULL;
+    auto pld =
+      iter->GetProperty() ? iter->GetProperty()->FindDomain<vtkSMProxyListDomain>() : nullptr;
     if (!pld)
     {
       continue;
@@ -401,7 +399,7 @@ bool vtkSMParaViewPipelineController::InitializeSession(vtkSMSession* session)
   vtkSmartPointer<vtkSMProxy> materialLib = this->FindMaterialLibrary(session);
   if (!materialLib)
   {
-#if VTK_MODULE_ENABLE_VTK_RenderingOSPRay
+#if VTK_MODULE_ENABLE_VTK_RenderingRayTracing
     materialLib.TakeReference(vtkSafeNewProxy(pxm, "materials", "MaterialLibrary"));
     if (materialLib)
     {
@@ -678,7 +676,20 @@ bool vtkSMParaViewPipelineController::RegisterViewProxy(vtkSMProxy* proxy, const
   this->RegisterProxiesForProxyListDomains(proxy);
 
   // Now register the proxy itself.
-  proxy->GetSessionProxyManager()->RegisterProxy("views", proxyname, proxy);
+  if (proxyname == nullptr)
+  {
+    auto pname = proxy->GetSessionProxyManager()->RegisterProxy("views", proxy);
+
+    // assign a name for logging
+    proxy->SetLogName(pname.c_str());
+  }
+  else
+  {
+    proxy->GetSessionProxyManager()->RegisterProxy("views", proxyname, proxy);
+
+    // assign a name for logging
+    proxy->SetLogName(proxyname);
+  }
 
   // Register proxy with TimeKeeper.
   vtkSMProxy* timeKeeper = this->FindTimeKeeper(proxy->GetSession());

@@ -166,9 +166,23 @@ option(PARAVIEW_BUILD_DEVELOPER_DOCUMENTATION "Build ParaView C++/Python docs" O
 option(PARAVIEW_BUILD_QT_GUI "Enable ParaView Qt-based client" ON)
 option(PARAVIEW_USE_MPI "Enable MPI support for parallel computing" OFF)
 option(PARAVIEW_USE_VTKM "Enable VTK-m accelerated algorithms" ON)
-option(PARAVIEW_USE_OSPRAY "Build ParaView with OSPRay Ray Traced rendering" OFF)
+set(raytracing_default OFF)
+if (DEFINED PARAVIEW_USE_OSPRAY)
+  message(DEPRECATION
+    "PARAVIEW_USE_OSPRAY has been renamed to PARAVIEW_USE_RAYTRACING.")
+  set(raytracing_default "${PARAVIEW_USE_OSPRAY}")
+  unset(PARAVIEW_USE_OSPRAY)
+  unset(PARAVIEW_USE_OSPRAY CACHE)
+endif ()
+option(PARAVIEW_USE_RAYTRACING "Build ParaView with OSPRay and/or OptiX ray Traced rendering" ${raytracing_default})
 option(PARAVIEW_ENABLE_LOGGING "Enable logging support." ON)
 mark_as_advanced(PARAVIEW_ENABLE_LOGGING)
+option(PARAVIEW_INSTALL_DEVELOPMENT_FILES "Install development files to the install tree" ON)
+mark_as_advanced(PARAVIEW_INSTALL_DEVELOPMENT_FILES)
+option(PARAVIEW_RELOCATABLE_INSTALL "Do not embed hard-coded paths into the install" ON)
+mark_as_advanced(PARAVIEW_RELOCATABLE_INSTALL)
+
+option(PARAVIEW_ENABLE_PYTHON "Enable/Disable Python scripting support" OFF)
 
 set(paraview_web_default ON)
 if (PARAVIEW_ENABLE_PYTHON AND WIN32)
@@ -179,7 +193,7 @@ endif ()
 # Add ability to freeze Python modules.
 cmake_dependent_option(PARAVIEW_FREEZE_PYTHON
   "Freeze Python packages/modules into the application." OFF
-  # XXX(python): Freezing is not yet supported.
+  # FIXME(python): Freezing is not yet supported.
   "PARAVIEW_ENABLE_PYTHON;NOT WIN32;NOT APPLE;FALSE" OFF)
 mark_as_advanced(PARAVIEW_FREEZE_PYTHON)
 cmake_dependent_option(PARAVIEW_ENABLE_WEB "Enable/Disable web support" "${paraview_web_default}"
@@ -193,15 +207,18 @@ option(PARAVIEW_ENABLE_GDAL "Enable GDAL support." OFF)
 mark_as_advanced(PARAVIEW_ENABLE_GDAL)
 option(PARAVIEW_ENABLE_LAS "Enable LAS support." OFF)
 mark_as_advanced(PARAVIEW_ENABLE_LAS)
-option(PARAVIEW_ENABLE_OPENTURNS "Enable OpenTurns support." OFF)
+option(PARAVIEW_ENABLE_OPENTURNS "Enable OpenTURNS support." OFF)
 option(PARAVIEW_ENABLE_PDAL "Enable PDAL support." OFF)
 mark_as_advanced(PARAVIEW_ENABLE_PDAL)
 option(PARAVIEW_ENABLE_MOTIONFX "Enable MotionFX support." OFF)
 mark_as_advanced(PARAVIEW_ENABLE_MOTIONFX)
+option(PARAVIEW_ENABLE_MOMENTINVARIANTS "Enable MomentInvariants filters" OFF)
+mark_as_advanced(PARAVIEW_ENABLE_MOMENTINVARIANTS)
 option(PARAVIEW_ENABLE_VISITBRIDGE "Enable VisIt readers." OFF)
 option(PARAVIEW_ENABLE_XDMF2 "Enable Xdmf2 support." ON)
 mark_as_advanced(PARAVIEW_ENABLE_XDMF2)
 option(PARAVIEW_ENABLE_XDMF3 "Enable Xdmf3 support." OFF)
+option(PARAVIEW_ENABLE_ADIOS2 "Enable ADIOS 2.x support." OFF)
 
 set(PARAVIEW_BUILD_TESTING "OFF"
   CACHE STRING "Build module testing directories")
@@ -213,9 +230,8 @@ if (PARAVIEW_BUILD_TESTING)
   set(BUILD_TESTING ON)
 endif ()
 
-if (UNIX)
-  option(PARAVIEW_ENABLE_FFMPEG "Enable FFMPEG Support." OFF)
-endif ()
+cmake_dependent_option(PARAVIEW_ENABLE_FFMPEG "Enable FFMPEG Support." OFF
+  "UNIX" OFF)
 
 cmake_dependent_option(PARAVIEW_USE_MPI_SSEND
   "Use MPI synchronous-send commands for communication" OFF
@@ -256,8 +272,6 @@ cmake_dependent_option(PARAVIEW_ENABLE_COMMANDLINE_TOOLS
   "Build ParaView command-line tools" ON
   "NOT PARAVIEW_BUILD_QT_GUI" ON)
 
-option(PARAVIEW_ENABLE_PYTHON "Enable/Disable Python scripting support" OFF)
-
 # If building on Unix with MPI enabled, we will present another option to
 # enable building of CosmoTools VTK extensions. This option is by default
 # OFF and set to OFF if ParaView is not built with MPI.
@@ -292,11 +306,6 @@ mark_as_advanced(PARAVIEW_USE_EXTERNAL)
 set(paraview_requested_modules)
 set(paraview_rejected_modules)
 
-if (PARAVIEW_ENABLE_COMMANDLINE_TOOLS)
-  list(APPEND paraview_requested_modules
-    ParaView::ServerManagerApplication)
-endif ()
-
 if (PARAVIEW_ENABLE_COMMANDLINE_TOOLS AND PARAVIEW_ENABLE_PYTHON)
   list(APPEND paraview_requested_modules
     VTK::PythonInterpreter)
@@ -318,17 +327,17 @@ if (PARAVIEW_ENABLE_PYTHON)
   list(APPEND paraview_requested_modules
     ParaView::PythonAlgorithm
     ParaView::PythonInitializer
+    ParaView::ClientServerCorePythonRendering
     VTK::RenderingMatplotlib)
 else ()
   list(APPEND paraview_rejected_modules
     ParaView::PythonAlgorithm
     ParaView::PythonInitializer
+    ParaView::ClientServerCorePythonRendering
     VTK::RenderingMatplotlib)
 endif ()
 
-if (PARAVIEW_ENABLE_PYTHON AND (NOT PARAVIEW_PYTHON_VERSION STREQUAL "3"))
-  # cinema_python doesn't support Python 3 yet
-  # paraview/paraview#17353
+if (PARAVIEW_ENABLE_PYTHON)
   list(APPEND paraview_requested_modules
     ParaView::CinemaPython
     ParaView::CinemaReader)
@@ -348,14 +357,9 @@ endif()
 
 if (PARAVIEW_BUILD_QT_GUI)
   list(APPEND paraview_requested_modules
-    ParaView::Core
-    ParaView::ServerManagerApplication
-    ParaView::ServerManagerCore
-    ParaView::ServerManagerDefault
     ParaView::pqApplicationComponents
     ParaView::pqComponents
     ParaView::pqCore)
-
   if (PARAVIEW_ENABLE_PYTHON)
     list(APPEND paraview_requested_modules
       ParaView::pqPython)
@@ -382,6 +386,10 @@ if (PARAVIEW_USE_MPI)
     VTK::ParallelMPI
     ParaView::VTKExtensionsDefaultParallel
     ParaView::icet)
+  if (NOT WIN32)
+    list(APPEND paraview_requested_modules
+      VTK::FiltersParallelDIY2)
+  endif()
 else ()
   list(APPEND paraview_rejected_modules
     VTK::mpi)
@@ -400,9 +408,9 @@ if (PARAVIEW_USE_VTKM)
     VTK::AcceleratorsVTKm)
 endif ()
 
-if (PARAVIEW_USE_OSPRAY)
+if (PARAVIEW_USE_RAYTRACING)
   list(APPEND paraview_requested_modules
-    VTK::RenderingOSPRay)
+    VTK::RenderingRayTracing)
 endif ()
 
 if (PARAVIEW_ENABLE_NVPIPE)
@@ -425,7 +433,7 @@ endif ()
 
 if (PARAVIEW_ENABLE_OPENTURNS)
   list(APPEND paraview_requested_modules
-    VTK::FiltersOpenTurns)
+    VTK::FiltersOpenTURNS)
 endif ()
 
 if (PARAVIEW_ENABLE_PDAL)
@@ -436,6 +444,17 @@ endif ()
 if (PARAVIEW_ENABLE_MOTIONFX)
   list(APPEND paraview_requested_modules
     VTK::IOMotionFX)
+endif ()
+
+set(use_vtk_remote_modules OFF)
+if (PARAVIEW_ENABLE_MOMENTINVARIANTS)
+  list(APPEND paraview_requested_modules
+    VTK::MomentInvariants)
+  if (PARAVIEW_USE_MPI)
+    list(APPEND paraview_requested_modules
+      VTK::ParallelMomentInvariants)
+  endif()
+  set(use_vtk_remote_modules ON)
 endif ()
 
 if (PARAVIEW_ENABLE_VISITBRIDGE)
@@ -456,6 +475,11 @@ endif ()
 if (PARAVIEW_ENABLE_XDMF3)
   list(APPEND paraview_requested_modules
     VTK::IOXdmf3)
+endif ()
+
+if (PARAVIEW_ENABLE_ADIOS2)
+  list(APPEND paraview_requested_modules
+    VTK::IOADIOS2)
 endif ()
 
 if (PARAVIEW_ENABLE_FFMPEG)
@@ -512,16 +536,21 @@ if (PARAVIEW_BUILD_TESTING)
 endif ()
 
 list(APPEND paraview_requested_modules
+  ParaView::Animation
   ParaView::ProcessXML
+  ParaView::ServerManagerApplication
+  ParaView::ServerManagerDefault
   ParaView::VTKExtensionsCGNSReader
-  ParaView::VTKExtensionsH5PartReader
   ParaView::VTKExtensionsPoints
   ParaView::WrapClientServer
   VTK::FiltersFlowPaths
+  VTK::FiltersTexture
   VTK::FiltersVerdict
   VTK::IOAMR
   VTK::IOAsynchronous # needed for cinema, but no harm adding always.
+  VTK::IOH5part
   VTK::IOParallelLSDyna
+  VTK::IOSegY
   VTK::IOTecplotTable
   VTK::IOTRUCHAS
   VTK::IOVeraOut
@@ -532,6 +561,7 @@ if (PARAVIEW_ENABLE_WEB)
   list(APPEND paraview_requested_modules
     ParaView::PVWebCore
     ParaView::PVWebPython
+    ParaView::PVWebExporter
     VTK::WebCore
     VTK::WebPython
   )
@@ -549,6 +579,7 @@ else()
     ParaView::PVWebCore
     ParaView::PVWebPython
     ParaView::PVWebPython2
+    ParaView::PVWebExporter
     VTK::WebCore
     VTK::WebPython
   )
@@ -584,6 +615,10 @@ set_property(GLOBAL
   PROPERTY
     "_vtk_module_autoinit_include" "\"vtkAutoInit.h\"")
 
+# Note that the way that this flag gets used, it only has an effect on the
+# initial configuration.
+option(PARAVIEW_PLUGINS_DEFAULT "Default state for ParaView plugins" ON)
+mark_as_advanced(PARAVIEW_PLUGINS_DEFAULT)
 set(paraview_default_plugins
   AcceleratedAlgorithms
   AnalyzeNIfTIReaderWriter
@@ -597,6 +632,7 @@ set(paraview_default_plugins
   ExplicitStructuredGrid
   GenericIOReader
   GeodesicMeasurement
+  GLTFReader
   GMVReader
   LagrangianParticleTracker
   Moments
@@ -605,6 +641,7 @@ set(paraview_default_plugins
   NonOrthogonalSource
   PacMan
   PanoramicProjectionView
+  # ParFlow - Because of dependency to nlohmann_json
   SLACTools
   SierraPlotTools
   StreamLinesRepresentation
@@ -614,7 +651,7 @@ set(paraview_default_plugins
   VTKmFilters
   pvblot)
 foreach (paraview_default_plugin IN LISTS paraview_default_plugins)
-  set("_paraview_plugin_default_${paraview_default_plugin}" ON)
+  set("_paraview_plugin_default_${paraview_default_plugin}" "${PARAVIEW_PLUGINS_DEFAULT}")
 endforeach ()
 
 set(paraview_plugin_directories
@@ -663,8 +700,32 @@ if (paraview_unrecognized_paraview_modules)
     "${paraview_unrecognized_paraview_modules}.")
 endif ()
 
+option(PARAVIEW_VERSIONED_INSTALL "Install artifacts with versioned names." ON)
+mark_as_advanced(PARAVIEW_VERSIONED_INSTALL)
+set(paraview_version_suffix "")
+if (PARAVIEW_VERSIONED_INSTALL)
+  set(paraview_version_suffix "-${PARAVIEW_VERSION_MAJOR}.${PARAVIEW_VERSION_MINOR}")
+endif ()
+
 set(paraview_cmake_destination
-  "${CMAKE_INSTALL_LIBDIR}/cmake/paraview-${PARAVIEW_VERSION_MAJOR}.${PARAVIEW_VERSION_MINOR}")
+  "${CMAKE_INSTALL_LIBDIR}/cmake/paraview${paraview_version_suffix}")
+
+set(PARAVIEW_CUSTOM_LIBRARY_SUFFIX "<DEFAULT>"
+  CACHE STRING "Custom library file name suffix (defaults to the version number)")
+mark_as_advanced(PARAVIEW_CUSTOM_LIBRARY_SUFFIX)
+if (PARAVIEW_CUSTOM_LIBRARY_SUFFIX STREQUAL "<DEFAULT>")
+  if (PARAVIEW_VERSIONED_INSTALL)
+    set(PARAVIEW_CUSTOM_LIBRARY_SUFFIX "pv${PARAVIEW_VERSION_MAJOR}.${PARAVIEW_VERSION_MINOR}")
+  else ()
+    set(PARAVIEW_CUSTOM_LIBRARY_SUFFIX "")
+  endif ()
+endif ()
+
+# Search for dependent libraries beside
+set(_paraview_CMAKE_INSTALL_RPATH_save
+  "${CMAKE_INSTALL_RPATH}")
+list(APPEND CMAKE_INSTALL_RPATH
+  "$ORIGIN")
 
 if (PARAVIEW_USE_EXTERNAL_VTK)
   if (paraview_required_modules OR paraview_unrecognized_modules)
@@ -710,10 +771,25 @@ else ()
   # Forward Python option to VTK.
   set(VTK_WRAP_PYTHON "${PARAVIEW_ENABLE_PYTHON}")
 
+  # Forward MPI option to VTK.
+  set(VTK_USE_MPI "${PARAVIEW_USE_MPI}")
+
   # Forward logging option to VTK.
   set(VTK_ENABLE_LOGGING "${PARAVIEW_ENABLE_LOGGING}")
   if (PARAVIEW_ENABLE_LOGGING)
     list(APPEND vtk_requested_modules VTK::loguru)
+  endif()
+
+  if (use_vtk_remote_modules)
+    if (PARAVIEW_ENABLE_MOMENTINVARIANTS)
+      set(VTK_MODULE_ENABLE_VTK_MomentInvariants WANT)
+    endif()
+    # include the Remote module
+    include("${CMAKE_CURRENT_SOURCE_DIR}/VTK/CMake/vtkDownload.cmake")
+    # TODO: remove this after changing in vtkModuleRemote.cmake:160
+    # "${VTK_SOURCE_DIR}/Remote/${_name}" to "${CMAKE_CURRENT_LIST_DIR}/${_name}"
+    set(VTK_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VTK")
+    add_subdirectory(VTK/Remote)
   endif()
 
   vtk_module_find_modules(vtk_module_files "${CMAKE_CURRENT_SOURCE_DIR}/VTK")
@@ -763,10 +839,10 @@ else ()
     KITS                ${vtk_kits}
     PACKAGE             VTK
     INSTALL_EXPORT      VTK
-    HEADERS_DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/paraview-${PARAVIEW_VERSION_MAJOR}.${PARAVIEW_VERSION_MINOR}"
+    HEADERS_DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/paraview${paraview_version_suffix}"
     CMAKE_DESTINATION   "${paraview_cmake_destination}/vtk"
     HIERARCHY_DESTINATION "${CMAKE_INSTALL_LIBDIR}/vtk/hierarchy/${CMAKE_PROJECT_NAME}"
-    LIBRARY_NAME_SUFFIX "pv${PARAVIEW_VERSION_MAJOR}.${PARAVIEW_VERSION_MINOR}"
+    LIBRARY_NAME_SUFFIX "${PARAVIEW_CUSTOM_LIBRARY_SUFFIX}"
     VERSION             "${PARAVIEW_VERSION}"
     SOVERSION           "1"
     TEST_DATA_TARGET    ParaViewData
@@ -782,6 +858,8 @@ else ()
       "${paraview_cmake_destination}/vtk")
     set(vtk_cmake_build_dir
       "${CMAKE_CURRENT_BINARY_DIR}/${vtk_cmake_destination}")
+    set(VTK_RELOCATABLE_INSTALL
+      "${PARAVIEW_RELOCATABLE_INSTALL}")
     include("${CMAKE_CURRENT_SOURCE_DIR}/VTK/CMake/vtkInstallCMakePackage.cmake")
   endif ()
 endif ()
@@ -799,10 +877,10 @@ vtk_module_build(
   MODULES             ${paraview_modules}
   KITS                ${paraview_kits}
   INSTALL_EXPORT      ParaView
-  HEADERS_DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/paraview-${PARAVIEW_VERSION_MAJOR}.${PARAVIEW_VERSION_MINOR}"
+  HEADERS_DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/paraview${paraview_version_suffix}"
   CMAKE_DESTINATION   "${paraview_cmake_destination}"
   HIERARCHY_DESTINATION "${CMAKE_INSTALL_LIBDIR}/vtk/hierarchy/${CMAKE_PROJECT_NAME}"
-  LIBRARY_NAME_SUFFIX "pv${PARAVIEW_VERSION_MAJOR}.${PARAVIEW_VERSION_MINOR}"
+  LIBRARY_NAME_SUFFIX "${PARAVIEW_CUSTOM_LIBRARY_SUFFIX}"
   VERSION             "${PARAVIEW_VERSION}"
   SOVERSION           "1"
   TEST_DATA_TARGET    ParaViewData
@@ -820,12 +898,20 @@ vtk_module_json(
   OUTPUT "paraview-modules.json")
 
 paraview_plugin_build(
+  HEADERS_DESTINATION   "${CMAKE_INSTALL_INCLUDEDIR}/paraview${paraview_version_suffix}"
   RUNTIME_DESTINATION   "${CMAKE_INSTALL_BINDIR}"
   LIBRARY_DESTINATION   "${CMAKE_INSTALL_LIBDIR}"
-  LIBRARY_SUBDIRECTORY  "paraview-${PARAVIEW_VERSION_MAJOR}.${PARAVIEW_VERSION_MINOR}/plugins"
-  PLUGINS_FILE_NAME ".plugins"
-  TARGET  paraview_plugins
+  LIBRARY_SUBDIRECTORY  "paraview${paraview_version_suffix}/plugins"
+  CMAKE_DESTINATION     "${paraview_cmake_destination}"
+  PLUGINS_FILE_NAME "paraview.plugins.xml"
+  TARGET            ParaView::paraview_plugins
+  INSTALL_EXPORT    ParaViewPlugins
+  TARGET_COMPONENT  "development"
+  PLUGINS_COMPONENT "plugins"
   PLUGINS ${paraview_plugins})
+
+set(CMAKE_INSTALL_RPATH
+  "${_paraview_CMAKE_INSTALL_RPATH_save}")
 
 vtk_module_wrap_client_server(
   MODULES   ${paraview_modules}
@@ -837,7 +923,8 @@ paraview_server_manager_process(
   MODULES   ${paraview_modules}
             ${vtk_modules}
   TARGET    paraview_server_manager
-  XML_FILES paraview_server_manager_files)
+  XML_FILES paraview_server_manager_files
+  INSTALL_EXPORT ParaView)
 
 if (PARAVIEW_ENABLE_PYTHON)
   if (PARAVIEW_USE_EXTERNAL_VTK)
@@ -850,6 +937,7 @@ if (PARAVIEW_ENABLE_PYTHON)
       PYTHON_PACKAGE  "vtkmodules"
       MODULE_DESTINATION  "${PARAVIEW_PYTHON_SITE_PACKAGES_SUFFIX}"
       CMAKE_DESTINATION   "${paraview_cmake_destination}/vtk"
+      LIBRARY_DESTINATION "${CMAKE_INSTALL_LIBDIR}"
       WRAPPED_MODULES vtk_python_wrapped_modules
       TARGET          VTK::vtkpythonmodules)
 
@@ -871,6 +959,7 @@ if (PARAVIEW_ENABLE_PYTHON)
     PYTHON_PACKAGE  "paraview.modules"
     MODULE_DESTINATION  "${PARAVIEW_PYTHON_SITE_PACKAGES_SUFFIX}"
     CMAKE_DESTINATION   "${paraview_cmake_destination}"
+    LIBRARY_DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     WRAPPED_MODULES paraview_python_wrapped_modules
     TARGET          ParaView::pvpythonmodules)
 endif ()
@@ -966,7 +1055,10 @@ if (BUILD_TESTING AND PARAVIEW_INSTALL_DEVELOPMENT_FILES)
     -DPARAVIEW_INSTALL_DIR:PATH=${CMAKE_INSTALL_PREFIX}
     -DPARAVIEW_SOURCE_DIR:PATH=${CMAKE_SOURCE_DIR}
     -DPARAVIEW_TEST_DIR:PATH=${CMAKE_BINARY_DIR}/Testing/Temporary
-    -DPARAVIEW_VERSION:STRING=${PARAVIEW_VERSION}
+    -DPARAVIEW_CMAKE_DESTINATION:STRING=${paraview_cmake_destination}
+    -DCMAKE_GENERATOR:STRING=${CMAKE_GENERATOR}
+    -DCMAKE_GENERATOR_PLATFORM:STRING=${CMAKE_GENERATOR_PLATFORM}
+    -DCMAKE_GENERATOR_TOOLSET:STRING=${CMAKE_GENERATOR_TOOLSET}
     -P ${CMAKE_CURRENT_SOURCE_DIR}/CMake/ParaViewTestInstall.cmake)
   set_tests_properties(pv.TestDevelopmentInstall PROPERTIES
     LABELS "paraview"

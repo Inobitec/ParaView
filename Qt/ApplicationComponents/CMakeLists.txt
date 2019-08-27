@@ -35,7 +35,6 @@ set(classes
   pqAnimationShortcutDecorator
   pqAnimationShortcutWidget
   pqAnimationTimeToolbar
-  pqAnimationTimeWidget
   pqApplicationComponentsInit
   pqApplicationSettingsReaction
   pqApplyBehavior
@@ -103,10 +102,12 @@ set(classes
   pqHandlePropertyWidget
   pqIgnoreSourceTimeReaction
   pqImageCompressorWidget
+  pqImmediateExportReaction
   pqImplicitPlanePropertyWidget
   pqImportCinemaReaction
   pqInputDataTypeDecorator
   pqInteractivePropertyWidget
+  pqLightPropertyWidget
   pqLinePropertyWidget
   pqLinkSelectionReaction
   pqListPropertyWidget
@@ -196,24 +197,31 @@ set(classes
   pqWelcomeDialog
   pqYoungsMaterialPropertyWidget)
 
+set(built_shared 0)
+if (BUILD_SHARED_LIBS)
+  set(built_shared 1)
+endif ()
+set_property(SOURCE pqApplicationComponentsInit.cxx APPEND
+  PROPERTY
+    COMPILE_DEFINITIONS "BUILD_SHARED_LIBS=${built_shared}")
+
 set(headers
   pqCatalystContinueReaction.h)
 
 if (TARGET ParaView::pqPython)
   list(APPEND classes
-    pqCatalystExportInspector
+    pqExportInspector
     pqMacroReaction
     pqTraceReaction)
 endif ()
 
 set(ui_files
-  Resources/UI/pqAnimationTimeWidget.ui
   Resources/UI/pqAxesToolbar.ui
   Resources/UI/pqBackgroundEditorWidget.ui
   Resources/UI/pqBoxPropertyWidget.ui
   Resources/UI/pqCameraManipulatorWidget.ui
   Resources/UI/pqCameraToolbar.ui
-  Resources/UI/pqCatalystExportInspector.ui
+  Resources/UI/pqExportInspector.ui
   Resources/UI/pqColorAnnotationsPropertyWidget.ui
   Resources/UI/pqColorEditorPropertyWidget.ui
   Resources/UI/pqColorMapEditor.ui
@@ -232,6 +240,7 @@ set(ui_files
   Resources/UI/pqHandlePropertyWidget.ui
   Resources/UI/pqImageCompressorWidget.ui
   Resources/UI/pqImplicitPlanePropertyWidget.ui
+  Resources/UI/pqLightPropertyWidget.ui
   Resources/UI/pqLinePropertyWidget.ui
   Resources/UI/pqMainControlsToolbar.ui
   Resources/UI/pqMoleculePropertyWidget.ui

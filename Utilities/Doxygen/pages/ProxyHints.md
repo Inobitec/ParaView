@@ -290,10 +290,9 @@ reader proxy to invoke to make the reader refresh.
 View Annotations
 ----------------
 Views support the following annotations:
-1. **ParaView::DetachedFromLayout**: If set to "True", this annotation will prevent the
-layout from grabbing the view, enabling custom application developers to assign or
-position the view themselves. Use `pqObjectBuilder::createView(viewType, server, true)`
-to create a new view with this annotation added.
+
+1. **ParaView::DetachedFromLayout**: **Deprecated in ParaView 5.7**.
+This is no longer applicable as all views are created detached from layout by default.
 
 Live Source
 ------------
@@ -315,3 +314,19 @@ true if the algorithm needs update.
 
 The `interval` attribute is optional (defaults to 100) and can be used to
 provide a refresh rate in milliseconds.
+
+ConnectToPortIndex
+--------------------------
+Connect to a specific port index.
+
+This is used to connect a representation to an output port of a filter
+other than the default (index = 0). Currently, this is only used to
+modify the input port for the selection representation subproxy in
+vtkSMPVRepresentationProxy.
+
+    <RepresentationProxy ...>
+      ...
+      <Hints>
+        <ConnectToPortIndex value="2" />
+      </Hints>
+    </RepresentationProxy>

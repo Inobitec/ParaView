@@ -22,6 +22,8 @@
 #include <vtksys/SystemInformation.hxx>
 #include <vtksys/SystemTools.hxx>
 
+#include <algorithm>
+
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPVOptions);
 
@@ -204,13 +206,15 @@ void vtkPVOptions::Initialize()
 #endif
   this->AddBooleanArgument("--stereo", 0, &this->UseStereoRendering,
     "Tell the application to enable stereo rendering",
-    vtkPVOptions::PVCLIENT | vtkPVOptions::PARAVIEW);
+    vtkPVOptions::PVCLIENT | vtkPVOptions::PARAVIEW | vtkPVOptions::PVRENDER_SERVER |
+      vtkPVOptions::PVSERVER | vtkPVOptions::PVBATCH);
   this->AddArgument("--stereo-type", 0, &this->StereoType,
     "Specify the stereo type. This valid only when "
     "--stereo is specified. Possible values are "
     "\"Crystal Eyes\", \"Red-Blue\", \"Interlaced\", "
     "\"Dresden\", \"Anaglyph\", \"Checkerboard\",\"SplitViewportHorizontal\"",
-    vtkPVOptions::PVCLIENT | vtkPVOptions::PARAVIEW);
+    vtkPVOptions::PVCLIENT | vtkPVOptions::PARAVIEW | vtkPVOptions::PVRENDER_SERVER |
+      vtkPVOptions::PVSERVER | vtkPVOptions::PVBATCH);
 
   this->AddBooleanArgument("--reverse-connection", "-rc", &this->ReverseConnection,
     "Have the server connect to the client.",
@@ -304,25 +308,6 @@ void vtkPVOptions::Initialize()
     "for rendering results.",
     vtkPVOptions::PVSERVER | vtkPVOptions::PVBATCH | vtkPVOptions::PVCLIENT |
       vtkPVOptions::PVRENDER_SERVER);
-
-#if defined(PARAVIEW_WITH_SUPERBUILD_MESA)
-  // We add these here so that "--help" on the process can print these variables
-  // out. The options are actually only available when built against a suitable
-  // mesa and ParaView is told that they exist. They are parsed in the forward
-  // executable infrastructure.
-  this->AddBooleanArgument(
-    "--native", 0, &this->DummyMesaFlag, "Use the system-provided OpenGL implementation.");
-  this->AddBooleanArgument("--mesa", 0, &this->DummyMesaFlag,
-    "Use the provided Mesa build and its default rendering "
-    "backend.");
-  this->AddBooleanArgument("--mesa-llvm", 0, &this->DummyMesaFlag,
-    "Use the provided Mesa build and the software renderer "
-    "(softpipe).");
-#if defined(PARAVIEW_WITH_SUPERBUILD_MESA_SWR)
-  this->AddBooleanArgument(
-    "--mesa-swr", 0, &this->DummyMesaFlag, "Use the provided Mesa build and the SWR renderer.");
-#endif
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -462,14 +447,8 @@ int vtkPVOptions::PostProcess(int argc, const char* const* argv)
 
   if (this->TileDimensions[0] > 0 || this->TileDimensions[1] > 0)
   {
-    if (this->TileDimensions[0] <= 0)
-    {
-      this->TileDimensions[0] = 1;
-    }
-    if (this->TileDimensions[1] <= 0)
-    {
-      this->TileDimensions[1] = 1;
-    }
+    this->TileDimensions[0] = std::max(1, this->TileDimensions[0]);
+    this->TileDimensions[1] = std::max(1, this->TileDimensions[1]);
   }
 
 #ifdef PARAVIEW_ALWAYS_SECURE_CONNECTION
@@ -551,6 +530,18 @@ int vtkPVOptions::WrongArgument(const char* argument)
 int vtkPVOptions::DeprecatedArgument(const char* argument)
 {
   return this->Superclass::DeprecatedArgument(argument);
+}
+
+//----------------------------------------------------------------------------
+bool vtkPVOptions::GetIsInTileDisplay() const
+{
+  return (this->TileDimensions[0] > 0 && this->TileDimensions[1] > 0);
+}
+
+//----------------------------------------------------------------------------
+bool vtkPVOptions::GetIsInCave() const
+{
+  return false;
 }
 
 //----------------------------------------------------------------------------

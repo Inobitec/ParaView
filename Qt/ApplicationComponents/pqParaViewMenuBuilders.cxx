@@ -68,6 +68,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pqHelpReaction.h"
 #endif
 #include "pqIgnoreSourceTimeReaction.h"
+#include "pqImmediateExportReaction.h"
 #include "pqImportCinemaReaction.h"
 #include "pqLinkSelectionReaction.h"
 #include "pqLoadDataReaction.h"
@@ -137,7 +138,7 @@ void pqParaViewMenuBuilders::buildFileMenu(QMenu& menu)
   // now setup reactions.
   new pqLoadDataReaction(ui.actionFileOpen);
   new pqImportCinemaReaction(ui.actionFileImportCinemaDatabase);
-#if VTK_MODULE_ENABLE_VTK_RenderingOSPRay
+#if VTK_MODULE_ENABLE_VTK_RenderingRayTracing
   new pqLoadMaterialsReaction(ui.actionFileLoadMaterials);
 #else
   delete ui.actionFileLoadMaterials;
@@ -156,6 +157,7 @@ void pqParaViewMenuBuilders::buildFileMenu(QMenu& menu)
   new pqSaveAnimationGeometryReaction(ui.actionFileSaveGeometry);
 
   new pqExportReaction(ui.actionExport);
+  new pqImmediateExportReaction(ui.actionExportImmediate);
   new pqSaveDataReaction(ui.actionFileSaveData);
 
   new pqLoadRestoreWindowLayoutReaction(true, ui.actionFileLoadWindowArrangement);
@@ -697,6 +699,8 @@ void pqParaViewMenuBuilders::buildCatalystMenu(QMenu& menu, QWidget* exportConfi
   QAction* gcatalyst = menu.addAction("Export Catalyst Script")
     << pqSetName("actionExportCatalyst");
   new pqCatalystExportReaction(gcatalyst);
+  QAction* gimmediate = menu.addAction("Export Now") << pqSetName("actionExportImmediate");
+  new pqImmediateExportReaction(gimmediate);
   QAction* gtemporal = menu.addAction("Export Temporal Script")
     << pqSetName("actionExportTemporal");
   new pqTemporalExportReaction(gtemporal);

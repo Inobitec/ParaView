@@ -195,6 +195,18 @@ void pqCalculatorWidget::updateVariables(const QString& mode)
   {
     fdi = input->GetDataInformation(0)->GetCellDataInformation();
   }
+  else if (mode == "Vertex Data")
+  {
+    fdi = input->GetDataInformation(0)->GetVertexDataInformation();
+  }
+  else if (mode == "Edge Data")
+  {
+    fdi = input->GetDataInformation(0)->GetEdgeDataInformation();
+  }
+  else if (mode == "Row Data")
+  {
+    fdi = input->GetDataInformation(0)->GetRowDataInformation();
+  }
 
   if (!fdi)
   {

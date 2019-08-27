@@ -45,6 +45,7 @@ import paraview._backwardscompatibilityhelper
 from paraview.servermanager import OutputPort
 
 import sys
+import warnings
 
 if sys.version_info >= (3,):
     xrange = range
@@ -135,11 +136,16 @@ def SetActiveConnection(connection=None, ns=None):
 #==============================================================================
 # Views and Layout methods
 #==============================================================================
-def CreateView(view_xml_name, detachedFromLayout=False, **params):
+def CreateView(view_xml_name, detachedFromLayout=None, **params):
     """Creates and returns the specified proxy view based on its name/label.
-    If detachedFromLayout is true, the view will no be grabbed by the layout
-    hence not visible unless it is attached after. This also set params keywords
-    arguments as view properties."""
+    Also set params keywords arguments as view properties.
+
+    `detachedFromLayout` has been deprecated in ParaView 5.7 as it is no longer
+    needed. All views are created detached by default.
+    """
+    if detachedFromLayout is not None:
+        warnings.warn("`detachedFromLayout` is deprecated in ParaView 5.7", DeprecationWarning)
+
     view = servermanager._create_view(view_xml_name)
     if not view:
         raise RuntimeError ("Failed to create requested view", view_xml_name)
@@ -158,9 +164,12 @@ def CreateView(view_xml_name, detachedFromLayout=False, **params):
     controller.PreInitializeProxy(view)
     SetProperties(view, **params)
     controller.PostInitializeProxy(view)
-    if detachedFromLayout:
-      view.SMProxy.SetAnnotation("ParaView::DetachedFromLayout", "true")
     controller.RegisterViewProxy(view, registrationName)
+
+    if paraview.compatibility.GetVersion() <= 5.6:
+        # older versions automatically assigned view to a
+        # layout.
+        controller.AssignViewToLayout(view)
 
     # setup an interactor if current process support interaction if an
     # interactor hasn't already been set. This overcomes the problem where VTK
@@ -376,11 +385,8 @@ def GetLayout(view=None):
         view = GetActiveView()
     if not view:
         raise RuntimeError ("No active view was found.")
-    layouts = GetLayouts()
-    for layout in layouts.values():
-        if layout.GetViewLocation(view) != -1:
-            return layout
-    return None
+    lproxy = servermanager.vtkSMViewLayoutProxy.FindLayout(view.SMProxy)
+    return servermanager._getPyProxy(lproxy)
 
 def GetLayoutByName(name):
     """Return the first layout with the given name, if any."""
@@ -398,6 +404,22 @@ def GetViewsInLayout(layout=None):
         raise RuntimeError ("Layout couldn't be determined. Please specify a valid layout.")
     views = GetViews()
     return [x for x in views if layout.GetViewLocation(x) != -1]
+
+def AssignViewToLayout(view=None, layout=None, hint=0):
+    """Assigns the view provided (or active view if None) to the
+    layout provided. If layout is None, then either the active layout or an
+    existing layout on the same server will be used. If no layout exists, then
+    a new layout will be created. Returns True on success.
+
+    It is an error to assign the same view to multiple layouts.
+    """
+    view = view if view else GetActiveView()
+    if not view:
+        raise RuntimeError("No active view was found.")
+
+    layout = layout if layout else GetLayout()
+    controller = servermanager.ParaViewPipelineController()
+    return controller.AssignViewToLayout(view, layout, hint)
 
 # -----------------------------------------------------------------------------
 
@@ -421,14 +443,20 @@ def LoadState(filename, connection=None, **extraArgs):
     RemoveViewsAndLayouts()
 
     pxm = servermanager.ProxyManager()
-    proxy = pxm.NewProxy('options', 'LoadStateOptions')
+    smproxy = pxm.SMProxyManager.NewProxy('options', 'LoadStateOptions')
+    smproxy.UnRegister(None)
 
-    if ((proxy is not None) & proxy.PrepareToLoad(filename)):
-        if (proxy.HasDataFiles() and (extraArgs is not None)):
-            pyproxy = servermanager._getPyProxy(proxy)
+    if (smproxy is not None) and smproxy.PrepareToLoad(filename):
+        if smproxy.HasDataFiles() and (extraArgs is not None):
+            # always create a brand new class since the properties
+            # may change based on the state file being loaded.
+            customclass = servermanager._createClass(smproxy.GetXMLGroup(),
+                    smproxy.GetXMLName(), prototype=smproxy)
+            pyproxy = customclass(proxy=smproxy)
             SetProperties(pyproxy, **extraArgs)
-
-        proxy.Load()
+            del pyproxy
+            del customclass
+        smproxy.Load()
 
     # Try to set the new view active
     if len(GetRenderViews()) > 0:
@@ -1305,8 +1333,14 @@ def SaveAnimation(filename, viewOrLayout=None, scene=None, **params):
     formatProperties = formatProxy.ListProperties()
     for prop in formatProperties:
         if prop in params:
-            formatProxy.SetPropertyWithName(prop, params[prop])
-            del params[prop]
+            # see comment at vtkSMSaveAnimationProxy.cxx:327
+            # certain 'prop' (such as FrameRate) are present
+            # in both SaveAnimation and formatProxy (FFMPEG with
+            # panel_visibility="never"). In this case save it only
+            # in SaveAnimation
+            if formatProxy.GetProperty(prop).GetPanelVisibility() != "never":
+                formatProxy.SetPropertyWithName(prop, params[prop])
+                del params[prop]
 
     if "ImageQuality" in params:
         import warnings
@@ -1664,17 +1698,15 @@ def GetAnimationScene():
 
 # -----------------------------------------------------------------------------
 
-def AnimateReader(reader=None, view=None, filename=None):
+def AnimateReader(reader=None, view=None):
     """This is a utility function that, given a reader and a view
-    animates over all time steps of the reader. If the optional
-    filename is provided, a movie is created (type depends on the
-    extension of the filename."""
+    animates over all time steps of the reader."""
     if not reader:
         reader = active_objects.source
     if not view:
         view = active_objects.view
 
-    return servermanager.AnimateReader(reader, view, filename)
+    return servermanager.AnimateReader(reader, view)
 
 # -----------------------------------------------------------------------------
 
@@ -2045,6 +2077,13 @@ def ResetProperty(propertyName, proxy=None, restoreFromSettings=True):
             settings.GetPropertySetting(propertyToReset)
 
         proxy.SMProxy.UpdateVTKObjects()
+
+def GetOpenGLInformation(location=servermanager.vtkSMSession.CLIENT):
+    """Recover OpenGL information, by default on the client"""
+    openGLInfo = servermanager.vtkPVServerImplementationRendering.vtkPVClientServerCoreRendering.vtkPVOpenGLInformation()
+    session = servermanager.vtkSMProxyManager.GetProxyManager().GetActiveSession()
+    session.GatherInformation(location, openGLInfo, 0)
+    return openGLInfo
 
 #==============================================================================
 # Usage and demo code set

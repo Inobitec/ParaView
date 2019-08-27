@@ -185,45 +185,48 @@ void pqCatalystExportReaction::onTriggered()
     std::string filterName = formatS.substr(0, underP);
     filterName[0] = tolower(filterName[0]);
 
-    std::string track = vtkSMPropertyHelper(nextWriter, "Cinema Parameters").GetAsString(0);
-    if (track.size())
+    int nelems;
+    nelems = vtkSMPropertyHelper(nextWriter, "Cinema Parameters").GetNumberOfElements();
+    if (nelems > 0)
     {
       hasTrackSets = true;
       QString thisTrack = QString("'");
       thisTrack += QString(filterName.c_str());
       thisTrack += QString("':[");
-      thisTrack += QString(track.c_str());
+      std::stringstream track_cache;
+      for (int i = 0; i < nelems; ++i)
+      {
+        track_cache << vtkSMPropertyHelper(nextWriter, "Cinema Parameters").GetAsDouble(i);
+        track_cache << ", ";
+      }
+      thisTrack += QString(track_cache.str().c_str());
+      thisTrack.chop(1);
       thisTrack += QString("],");
       cinema_tracks += thisTrack;
     }
 
-    QString theseArrays = QString("'");
-    theseArrays += QString(filterName.c_str());
-    theseArrays += QString("':[");
-
-    // TODO: there isn't an API to distinguish cell and point arrays or the same name
-    bool hasArrays = false;
-    int nelems;
-    nelems = vtkSMPropertyHelper(nextWriter, "Cell Arrays").GetNumberOfElements();
-    for (int i = 0; i < nelems; ++i)
-    {
-      hasArrays = true;
-      theseArrays += "'";
-      theseArrays += vtkSMPropertyHelper(nextWriter, "Cell Arrays").GetAsString(i);
-      theseArrays += "',";
-    }
-
-    nelems = vtkSMPropertyHelper(nextWriter, "Point Arrays").GetNumberOfElements();
-    for (int i = 0; i < nelems; ++i)
-    {
-      hasArrays = true;
-      theseArrays += "'";
-      theseArrays += vtkSMPropertyHelper(nextWriter, "Point Arrays").GetAsString(i);
-      theseArrays += "',";
-    }
-    if (hasArrays)
+    if (vtkSMPropertyHelper(nextWriter, "ChooseArraysToWrite").GetAsInt(0) == 1)
     {
       hasArraySets = true;
+      QString theseArrays = QString("'");
+      theseArrays += QString(filterName.c_str());
+      theseArrays += QString("':[");
+      // TODO: there isn't an API to distinguish cell and point arrays or the same name
+      nelems = vtkSMPropertyHelper(nextWriter, "CellDataArrays").GetNumberOfElements();
+      for (int i = 0; i < nelems; ++i)
+      {
+        theseArrays += "'";
+        theseArrays += vtkSMPropertyHelper(nextWriter, "CellDataArrays").GetAsString(i);
+        theseArrays += "',";
+      }
+
+      nelems = vtkSMPropertyHelper(nextWriter, "PointDataArrays").GetNumberOfElements();
+      for (int i = 0; i < nelems; ++i)
+      {
+        theseArrays += "'";
+        theseArrays += vtkSMPropertyHelper(nextWriter, "PointDataArrays").GetAsString(i);
+        theseArrays += "',";
+      }
       theseArrays.chop(1);
       theseArrays += "],";
       cinema_arrays += theseArrays;
@@ -291,6 +294,13 @@ void pqCatalystExportReaction::onTriggered()
     QString width = QString::fromStdString(std::to_string(targetSize.GetX()));
     QString height = QString::fromStdString(std::to_string(targetSize.GetY()));
 
+    int compression = -1;
+    vtkSMProxy* writerProxy = ssProxy->GetFormatProxy(filename);
+    if (writerProxy)
+    {
+      compression = vtkSMPropertyHelper(writerProxy, "CompressionLevel", true).GetAsInt(0);
+    }
+
     // this is catalyst specific, need to add to SSSProxy
     // but will come from a new CinemaSpecific file format
     QString cinema_options = "{}";
@@ -298,12 +308,11 @@ void pqCatalystExportReaction::onTriggered()
     if (imagefilename.endsWith("cdb"))
     {
       // get the cinema database shape from the CDB subproxy
-      vtkSMProxy* writerProxy = ssProxy->GetFormatProxy(filename);
       if (writerProxy)
       {
         imagefilename = imagefilename.replace("cdb", "png"); // just always use png for normal
                                                              // images
-        int renderingLevel = vtkSMPropertyHelper(writerProxy, "Deferred Rendering").GetAsInt();
+        int renderingLevel = vtkSMPropertyHelper(writerProxy, "DeferredRendering").GetAsInt();
         QString compositeState;
         QString useValues;
         QString valueFormat = "'floatValues':True"; // now that we can rely on float textures
@@ -327,7 +336,7 @@ void pqCatalystExportReaction::onTriggered()
             useValues = "'noValues':False";
             break;
         }
-        int cameraLevel = vtkSMPropertyHelper(writerProxy, "Camera Model").GetAsInt();
+        int cameraLevel = vtkSMPropertyHelper(writerProxy, "CameraModel").GetAsInt();
         if (renderingLevel == 0 && cameraLevel > 1)
         {
           cameraLevel = 1;
@@ -421,7 +430,7 @@ void pqCatalystExportReaction::onTriggered()
           cinema_options += "," + rolls;
         }
 
-        QString trackedObject = vtkSMPropertyHelper(writerProxy, "Track Object").GetAsString();
+        QString trackedObject = vtkSMPropertyHelper(writerProxy, "TrackObject").GetAsString();
         if (trackedObject != "None")
         {
           if (renderingLevel == 0)
@@ -460,7 +469,7 @@ void pqCatalystExportReaction::onTriggered()
       }
     }
 
-    QString viewformat = "'%1' : ['%2', %3, %4, %5, %6, %7, %8]";
+    QString viewformat = "'%1' : ['%2', %3, %4, %5, %6, %7, %8, %9]";
     QString nextview = viewformat.arg(viewname)
                          .arg(imagefilename)
                          .arg(frequency)
@@ -468,14 +477,14 @@ void pqCatalystExportReaction::onTriggered()
                          .arg(magnification)
                          .arg(width)
                          .arg(height)
-                         .arg(cinema_options);
+                         .arg(cinema_options)
+                         .arg(compression);
     rendering_info += nextview + ",";
   }
 
   if (!(exported_any_screenshots || exported_any_writers))
   {
-    qWarning(
-      "Nothing to export, use Catalyst Export Inspector to configure what you want to write.");
+    qWarning("Nothing to export, use Export Inspector to configure what you want to write.");
   }
   else
   {

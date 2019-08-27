@@ -31,7 +31,6 @@ set(paraview_cmake_module_files
   # Client API
   paraview_client_initializer.cxx.in
   paraview_client_initializer.h.in
-  paraview_launcher.c.in
   paraview_client_main.cxx.in
   ParaViewClient.cmake
   paraview_servermanager_convert_categoryindex.xsl
@@ -81,11 +80,24 @@ foreach (paraview_cmake_module_file IN LISTS paraview_cmake_module_files)
     "${paraview_cmake_module_file}")
 endforeach ()
 
+include(ParaViewInstallCMakePackageHelpers)
+if (NOT PARAVIEW_RELOCATABLE_INSTALL)
+  list(APPEND paraview_cmake_files_to_install
+    "${paraview_cmake_build_dir}/paraview-find-package-helpers.cmake")
+endif ()
+
 foreach (paraview_cmake_file IN LISTS paraview_cmake_files_to_install)
-  get_filename_component(subdir "${paraview_cmake_file}" DIRECTORY)
+  if (IS_ABSOLUTE "${paraview_cmake_file}")
+    file(RELATIVE_PATH paraview_cmake_subdir_root "${paraview_cmake_build_dir}" "${paraview_cmake_file}")
+    get_filename_component(paraview_cmake_subdir "${paraview_cmake_subdir_root}" DIRECTORY)
+    set(paraview_cmake_original_file "${paraview_cmake_file}")
+  else ()
+    get_filename_component(paraview_cmake_subdir "${paraview_cmake_file}" DIRECTORY)
+    set(paraview_cmake_original_file "${paraview_cmake_dir}/${paraview_cmake_file}")
+  endif ()
   install(
-    FILES       "${paraview_cmake_dir}/${paraview_cmake_file}"
-    DESTINATION "${paraview_cmake_destination}/${subdir}"
+    FILES       "${paraview_cmake_original_file}"
+    DESTINATION "${paraview_cmake_destination}/${paraview_cmake_subdir}"
     COMPONENT   "development")
 endforeach ()
 
