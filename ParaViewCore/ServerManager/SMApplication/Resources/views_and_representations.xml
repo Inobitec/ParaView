@@ -2980,18 +2980,6 @@
     <ContextViewProxy base_proxygroup="internal_views"
                       base_proxyname="XYChartViewBase4Axes"
                       class="vtkPVXYChartView"
-                      name="MultiLinesView"
-                      label="Line Chart View Ext"
-                      processes="client|renderserver|dataserver"
-                      representation_name="XYChartRepresentationExt"
-                      post_creation="SetChartTypeToLine" >
-      <Documentation>This is the proxy for the XY line chart
-      view.</Documentation>
-    </ContextViewProxy>
-    <!-- ================================================================== -->
-    <ContextViewProxy base_proxygroup="internal_views"
-                      base_proxyname="XYChartViewBase4Axes"
-                      class="vtkPVXYChartView"
                       name="XYPointChartView"
                       label="Point Chart View"
                       processes="client|renderserver|dataserver"
