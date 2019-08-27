@@ -2,6 +2,7 @@
 	path = VTK
 	# url = https://gitlab.kitware.com/vtk/vtk.git
 	url = https://github.com/EvgenyVRN/VTK.git
+	branch = develop
 [submodule "Utilities/VisItBridge"]
 	path = Utilities/VisItBridge
 	url = https://gitlab.kitware.com/paraview/visitbridge.git
