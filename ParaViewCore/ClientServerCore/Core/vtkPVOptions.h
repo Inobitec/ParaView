@@ -28,6 +28,7 @@
 #include "vtkCommandOptions.h"
 #include "vtkPVClientServerCoreCoreModule.h" //needed for exports
 
+#include <string>  // used for ivar
 #include <utility> // needed for pair
 #include <vector>  // needed for vector
 
@@ -58,6 +59,16 @@ public:
   vtkGetMacro(UseRenderingGroup, int);
   vtkGetVector2Macro(TileDimensions, int);
   vtkGetVector2Macro(TileMullions, int);
+
+  /**
+   * Returns true if the tile display configuration is requested.
+   */
+  virtual bool GetIsInTileDisplay() const;
+
+  /**
+   * Returns true of CAVE configuration is requested.
+   */
+  virtual bool GetIsInCave() const;
 
   /**
    * Returns the egl device index. -1 indicates that no value was specified.
@@ -103,15 +114,6 @@ public:
    */
   vtkSetStringMacro(LogFileName);
   vtkGetStringMacro(LogFileName);
-  //@}
-
-  //@{
-  /**
-   * vtkPVProcessModule needs to set this.
-   */
-  vtkSetVector2Macro(TileDimensions, int);
-  vtkSetVector2Macro(TileMullions, int);
-  vtkSetMacro(UseOffscreenRendering, int);
   //@}
 
   /**

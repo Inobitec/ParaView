@@ -43,14 +43,17 @@
 #include "vtkProcessModule.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
+#include "vtkScalarsToColors.h"
 #include "vtkSelection.h"
 #include "vtkSelectionConverter.h"
 #include "vtkSelectionNode.h"
+#include "vtkShaderProperty.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkUnstructuredGrid.h"
 
-#if VTK_MODULE_ENABLE_VTK_RenderingOSPRay
+#if VTK_MODULE_ENABLE_VTK_RenderingRayTracing
 #include "vtkOSPRayActorNode.h"
 #endif
 
@@ -58,6 +61,7 @@
 #include <vtksys/SystemTools.hxx>
 
 #include <memory>
+#include <numeric>
 #include <tuple>
 #include <vector>
 
@@ -313,16 +317,12 @@ int vtkGeometryRepresentation::ProcessViewRequest(
     // redistribute data as and when needed.
     vtkPVRenderView::MarkAsRedistributable(inInfo, this);
 
-    this->ComputeVisibleDataBounds();
-
     // Tell the view if this representation needs ordered compositing. We need
     // ordered compositing when rendering translucent geometry.
-    if (this->Actor->HasTranslucentPolygonalGeometry())
+    if (this->NeedsOrderedCompositing())
     {
-      // We need to extend this condition to consider translucent LUTs once we
-      // start supporting them,
-
       outInfo->Set(vtkPVRenderView::NEED_ORDERED_COMPOSITING(), 1);
+
       // Pass partitioning information to the render view.
       if (this->UseDataPartitions == true)
       {
@@ -334,6 +334,8 @@ int vtkGeometryRepresentation::ProcessViewRequest(
     // information for resetting camera and clip planes. Since this
     // representation allows users to transform the geometry, we need to ensure
     // that the bounds we report include the transformation as well.
+    this->ComputeVisibleDataBounds();
+
     vtkNew<vtkMatrix4x4> matrix;
     this->Actor->GetMatrix(matrix.GetPointer());
     vtkPVRenderView::SetGeometryBounds(inInfo, this->VisibleDataBounds, matrix.GetPointer());
@@ -698,6 +700,75 @@ void vtkGeometryRepresentation::SetVisibility(bool val)
 }
 
 //----------------------------------------------------------------------------
+bool vtkGeometryRepresentation::NeedsOrderedCompositing()
+{
+  // One would think simply calling `vtkActor::HasTranslucentPolygonalGeometry`
+  // should do the trick, however that method relies on the mapper's input
+  // having up-to-date data. vtkGeometryRepresentation needs to determine
+  // whether the representation needs ordered compositing in `REQUEST_UPDATE`
+  // pass i.e. before the mapper's input is updated. Hence we explicitly
+  // determine if the mapper may choose to render translucent geometry.
+  if (this->Actor->GetForceOpaque())
+  {
+    return false;
+  }
+
+  if (this->Actor->GetForceTranslucent())
+  {
+    return true;
+  }
+
+  if (auto prop = this->Actor->GetProperty())
+  {
+    auto opacity = prop->GetOpacity();
+    if (opacity > 0.0 && opacity < 1.0)
+    {
+      return true;
+    }
+  }
+
+  if (auto texture = this->Actor->GetTexture())
+  {
+    if (texture->IsTranslucent())
+    {
+      return true;
+    }
+  }
+
+  // Check is BlockOpacities has any value not 0 or 1.
+  if (std::accumulate(this->BlockOpacities.begin(), this->BlockOpacities.end(), false,
+        [](bool result, const std::pair<unsigned int, double>& apair) {
+          return result || (apair.second > 0.0 && apair.second < 1.0);
+        }))
+  {
+    // a translucent block may be present.
+    return true;
+  }
+
+  auto colorarrayname = this->GetColorArrayName();
+  if (colorarrayname && colorarrayname[0])
+  {
+    if (this->Mapper->GetColorMode() == VTK_COLOR_MODE_DIRECT_SCALARS)
+    {
+      // when mapping scalars directly, assume the scalars have an alpha
+      // component since we cannot check if that is indeed the case consistently
+      // on all ranks without a bit of work.
+      return true;
+    }
+
+    if (auto lut = this->Mapper->GetLookupTable())
+    {
+      if (lut->IsOpaque() == 0)
+      {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+//----------------------------------------------------------------------------
 void vtkGeometryRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -762,7 +833,7 @@ void vtkGeometryRepresentation::SetOpacity(double val)
 //----------------------------------------------------------------------------
 void vtkGeometryRepresentation::SetLuminosity(double val)
 {
-#if VTK_MODULE_ENABLE_VTK_RenderingOSPRay
+#if VTK_MODULE_ENABLE_VTK_RenderingRayTracing
   vtkOSPRayActorNode::SetLuminosity(val, this->Property);
 #else
   (void)val;
@@ -779,6 +850,80 @@ void vtkGeometryRepresentation::SetRenderPointsAsSpheres(bool val)
 void vtkGeometryRepresentation::SetRenderLinesAsTubes(bool val)
 {
   this->Property->SetRenderLinesAsTubes(val);
+}
+
+//----------------------------------------------------------------------------
+void vtkGeometryRepresentation::SetRoughness(double val)
+{
+  this->Property->SetRoughness(val);
+}
+
+//----------------------------------------------------------------------------
+void vtkGeometryRepresentation::SetMetallic(double val)
+{
+  this->Property->SetMetallic(val);
+}
+
+//----------------------------------------------------------------------------
+void vtkGeometryRepresentation::SetBaseColorTexture(vtkTexture* tex)
+{
+  if (tex)
+  {
+    tex->UseSRGBColorSpaceOn();
+    tex->InterpolateOn();
+  }
+  this->Property->SetBaseColorTexture(tex);
+}
+
+//----------------------------------------------------------------------------
+void vtkGeometryRepresentation::SetMaterialTexture(vtkTexture* tex)
+{
+  if (tex)
+  {
+    tex->UseSRGBColorSpaceOff();
+    tex->InterpolateOn();
+  }
+  this->Property->SetORMTexture(tex);
+}
+
+//----------------------------------------------------------------------------
+void vtkGeometryRepresentation::SetNormalTexture(vtkTexture* tex)
+{
+  if (tex)
+  {
+    tex->UseSRGBColorSpaceOff();
+    tex->InterpolateOn();
+  }
+  this->Property->SetNormalTexture(tex);
+}
+
+//----------------------------------------------------------------------------
+void vtkGeometryRepresentation::SetEmissiveTexture(vtkTexture* tex)
+{
+  if (tex)
+  {
+    tex->UseSRGBColorSpaceOn();
+    tex->InterpolateOn();
+  }
+  this->Property->SetEmissiveTexture(tex);
+}
+
+//----------------------------------------------------------------------------
+void vtkGeometryRepresentation::SetNormalScale(double val)
+{
+  this->Property->SetNormalScale(val);
+}
+
+//----------------------------------------------------------------------------
+void vtkGeometryRepresentation::SetOcclusionStrength(double val)
+{
+  this->Property->SetOcclusionStrength(val);
+}
+
+//----------------------------------------------------------------------------
+void vtkGeometryRepresentation::SetEmissiveFactor(double rval, double gval, double bval)
+{
+  this->Property->SetEmissiveFactor(rval, gval, bval);
 }
 
 //----------------------------------------------------------------------------
@@ -859,6 +1004,19 @@ void vtkGeometryRepresentation::SetUserTransform(const double matrix[16])
   vtkNew<vtkTransform> transform;
   transform->SetMatrix(matrix);
   this->Actor->SetUserTransform(transform.GetPointer());
+}
+
+//----------------------------------------------------------------------------
+void vtkGeometryRepresentation::SetFlipTextures(bool flip)
+{
+  vtkInformation* info = this->Actor->GetPropertyKeys();
+  info->Remove(vtkProp::GeneralTextureTransform());
+  if (flip)
+  {
+    double mat[] = { 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+    info->Set(vtkProp::GeneralTextureTransform(), mat, 16);
+  }
+  this->Actor->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -1083,7 +1241,7 @@ void vtkGeometryRepresentation::UpdateBlockAttributes(vtkMapper* mapper)
 //----------------------------------------------------------------------------
 void vtkGeometryRepresentation::SetEnableScaling(int val)
 {
-#if VTK_MODULE_ENABLE_VTK_RenderingOSPRay
+#if VTK_MODULE_ENABLE_VTK_RenderingRayTracing
   this->Actor->SetEnableScaling(val);
 #else
   (void)val;
@@ -1093,7 +1251,7 @@ void vtkGeometryRepresentation::SetEnableScaling(int val)
 //----------------------------------------------------------------------------
 void vtkGeometryRepresentation::SetScalingArrayName(const char* val)
 {
-#if VTK_MODULE_ENABLE_VTK_RenderingOSPRay
+#if VTK_MODULE_ENABLE_VTK_RenderingRayTracing
   this->Actor->SetScalingArrayName(val);
 #else
   (void)val;
@@ -1103,7 +1261,7 @@ void vtkGeometryRepresentation::SetScalingArrayName(const char* val)
 //----------------------------------------------------------------------------
 void vtkGeometryRepresentation::SetScalingFunction(vtkPiecewiseFunction* pwf)
 {
-#if VTK_MODULE_ENABLE_VTK_RenderingOSPRay
+#if VTK_MODULE_ENABLE_VTK_RenderingRayTracing
   this->Actor->SetScalingFunction(pwf);
 #else
   (void)pwf;
@@ -1113,7 +1271,7 @@ void vtkGeometryRepresentation::SetScalingFunction(vtkPiecewiseFunction* pwf)
 //----------------------------------------------------------------------------
 void vtkGeometryRepresentation::SetMaterial(const char* val)
 {
-#if VTK_MODULE_ENABLE_VTK_RenderingOSPRay
+#if VTK_MODULE_ENABLE_VTK_RenderingRayTracing
   if (!strcmp(val, "None"))
   {
     this->Property->SetMaterialName(nullptr);
@@ -1183,16 +1341,14 @@ void vtkGeometryRepresentation::SetShaderReplacements(const char* replacementsSt
 //----------------------------------------------------------------------------
 void vtkGeometryRepresentation::UpdateShaderReplacements()
 {
-  vtkOpenGLPolyDataMapper* glMapper = vtkOpenGLPolyDataMapper::SafeDownCast(this->Mapper);
-  vtkOpenGLPolyDataMapper* glLODMapper = vtkOpenGLPolyDataMapper::SafeDownCast(this->LODMapper);
+  vtkShaderProperty* props = this->Actor->GetShaderProperty();
 
-  if (!glMapper || !glLODMapper)
+  if (!props)
   {
     return;
   }
 
-  glMapper->ClearAllShaderReplacements();
-  glLODMapper->ClearAllShaderReplacements();
+  props->ClearAllShaderReplacements();
 
   if (!this->UseShaderReplacements || this->ShaderReplacementsString == "")
   {
@@ -1260,7 +1416,20 @@ void vtkGeometryRepresentation::UpdateShaderReplacements()
 
   for (const auto& r : replacements)
   {
-    glMapper->AddShaderReplacement(std::get<0>(r), std::get<1>(r), true, std::get<2>(r), true);
-    glLODMapper->AddShaderReplacement(std::get<0>(r), std::get<1>(r), true, std::get<2>(r), true);
+    switch (std::get<0>(r))
+    {
+      case vtkShader::Fragment:
+        props->AddFragmentShaderReplacement(std::get<1>(r), true, std::get<2>(r), true);
+        break;
+      case vtkShader::Vertex:
+        props->AddVertexShaderReplacement(std::get<1>(r), true, std::get<2>(r), true);
+        break;
+      case vtkShader::Geometry:
+        props->AddGeometryShaderReplacement(std::get<1>(r), true, std::get<2>(r), true);
+        break;
+      default:
+        assert(false && "unknown shader replacement type");
+        break;
+    }
   }
 }

@@ -67,7 +67,6 @@ set(ParaView::ServerManagerDefault_ARGS)
 
 vtk_module_test_data(
   "${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/MultiView_chart_view.png"
-  "${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/MultiView_chart_view_1.png"
   "${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/MultiView_render_view.png")
 
 set(PVBATCH_TESTS
@@ -92,6 +91,10 @@ endif()
 set(PVBATCH_NO_SYMMETRIC_TESTS
   SaveAnimation.py
   )
+
+set(PVBATCH_TESTS_5_RANKS
+    ParallelSerialWriterMultipleRankIO.py)
+
 IF (MPIEXEC_EXECUTABLE)
   set(vtkPVServerManagerDefault_NUMPROCS 2)
   paraview_add_test_pvbatch_mpi(
@@ -99,6 +102,13 @@ IF (MPIEXEC_EXECUTABLE)
     ${PVBATCH_TESTS}
     ${PVBATCH_NO_SYMMETRIC_TESTS}
     )
+  set(vtkPVServerManagerDefault_NUMPROCS 5)
+  paraview_add_test_pvbatch_mpi(
+    JUST_VALID
+    ${PVBATCH_TESTS_5_RANKS}
+    )
+
+  set(vtkPVServerManagerDefault_NUMPROCS 2)
   set(paraview_pvbatch_args
     --symmetric)
   set(vtk_test_prefix Symmetric)
@@ -106,6 +116,13 @@ IF (MPIEXEC_EXECUTABLE)
     JUST_VALID
     ${PVBATCH_TESTS}
     )
+
+  set(vtkPVServerManagerDefault_NUMPROCS 5)
+  paraview_add_test_pvbatch_mpi(
+    JUST_VALID
+    ${PVBATCH_TESTS_5_RANKS}
+    )
+
   unset(paraview_pvbatch_args)
   unset(vtk_test_prefix)
   unset(vtkPVServerManagerDefault_NUMPROCS)

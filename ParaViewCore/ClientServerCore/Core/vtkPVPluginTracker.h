@@ -74,17 +74,18 @@ public:
    * form:
    * @code
    * <Plugins>
-   * <Plugin name="[plugin name]" filename="[optional file name] auto_load="[bool]" />
+   * <Plugin name="[plugin name]" filename="[optional file name]" auto_load="[bool]" />
    * ...
    * </Plugins>
    * @endcode
    * This method will process the XML, locate the plugin shared library and
    * either load the plugin or call RegisterAvailablePlugin based on the status
    * of the auto_load flag. auto_load flag is optional and is 0 by default.
-   * filaname is also optional, if not provided this method will look in
+   * filename is also optional, if not provided this method will look in
    * different place to find the plugin, eg. paraview lib dir. It will NOT look
    * in PV_PLUGIN_PATH.
    */
+  void LoadPluginConfigurationXMLs(const char* appname);
   void LoadPluginConfigurationXML(const char* filename, bool forceLoad = false);
   void LoadPluginConfigurationXML(vtkPVXMLElement*, bool forceLoad = false);
   void LoadPluginConfigurationXMLFromString(const char* xmlcontents, bool forceLoad = false);
@@ -116,7 +117,10 @@ public:
   /**
    * Sets the function used to load static plugins.
    */
-  static void SetStaticPluginSearchFunction(vtkPluginSearchFunction function);
+  static void RegisterStaticPluginSearchFunction(vtkPluginSearchFunction function);
+#ifndef VTK_LEGACY_REMOVE
+  static VTK_LEGACY(void SetStaticPluginSearchFunction(vtkPluginSearchFunction function));
+#endif
 
 protected:
   vtkPVPluginTracker();
@@ -129,7 +133,8 @@ private:
   class vtkPluginsList;
   vtkPluginsList* PluginsList;
 
-  static vtkPluginSearchFunction StaticPluginSearchFunction;
+  void LoadPluginConfigurationXMLConf(std::string const& exe_dir, std::string const& conf);
+  void LoadPluginConfigurationXMLHinted(vtkPVXMLElement*, const char* hint, bool forceLoad);
 };
 
 #endif

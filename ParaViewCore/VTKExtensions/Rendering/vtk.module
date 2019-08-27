@@ -32,6 +32,7 @@ PRIVATE_DEPENDS
   VTK::CommonColor
   VTK::glew
   VTK::lz4
+  VTK::opengl
   VTK::zlib
 OPTIONAL_DEPENDS
   ParaView::ClientServerCoreCore
@@ -39,12 +40,9 @@ OPTIONAL_DEPENDS
   ParaView::nvpipe
   VTK::FiltersParallelMPI
   VTK::RenderingMatplotlib
-  VTK::RenderingOSPRay
-
+  VTK::RenderingRayTracing
   # These affect the public API.
-  ParaView::icet
   VTK::ParallelMPI
-  VTK::PythonInterpreter
 TEST_DEPENDS
   VTK::IOAMR
   VTK::IOXML

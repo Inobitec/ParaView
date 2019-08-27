@@ -122,7 +122,15 @@ void vtkSMPVRepresentationProxy::SetPropertyModifiedFlag(const char* name, int f
         }
         else
         {
-          vtkSMPropertyHelper(selectionRepr, "Input").Set(esProxy);
+          int port = 0;
+          if (vtkPVXMLElement* hints = selectionRepr->GetHints()
+              ? selectionRepr->GetHints()->FindNestedElementByName("ConnectToPortIndex")
+              : nullptr)
+          {
+            hints->GetScalarAttribute("value", &port);
+          }
+
+          vtkSMPropertyHelper(selectionRepr, "Input").Set(esProxy, port);
           selectionRepr->UpdateVTKObjects();
         }
       }
@@ -831,9 +839,7 @@ bool vtkSMPVRepresentationProxy::SetRepresentationType(const char* type)
     vtkSMProperty* colorArrayName = this->GetProperty("ColorArrayName");
     if (colorArrayName)
     {
-      vtkSMArrayListDomain* ald =
-        vtkSMArrayListDomain::SafeDownCast(colorArrayName->FindDomain("vtkSMArrayListDomain"));
-
+      auto ald = colorArrayName->FindDomain<vtkSMArrayListDomain>();
       if (ald && ald->GetNumberOfStrings() > 0)
       {
         unsigned int index = 0;

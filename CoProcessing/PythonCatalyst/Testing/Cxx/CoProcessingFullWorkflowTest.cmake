@@ -16,7 +16,7 @@ macro(execute_process_with_echo)
     set (_cmd "${_cmd} ${arg}")
   endforeach()
   message(STATUS "Executing command: \n    ${_cmd}")
-  execute_process(${ARGV})
+  execute_process(${ARGV} WORKING_DIRECTORY ${COPROCESSING_TEST_DIR})
 endmacro()
 
 file(REMOVE
@@ -33,6 +33,7 @@ file(REMOVE
   "${COPROCESSING_TEST_DIR}/Slice1_4.pvtp"
   "${COPROCESSING_TEST_DIR}/Slice1_4"
   "${COPROCESSING_TEST_DIR}/RenderView1_4.png"
+  "${COPROCESSING_TEST_DIR}/CinD"
   )
 
 if (NOT EXISTS "${PARAVIEW_EXECUTABLE}")
@@ -63,19 +64,25 @@ endif()
 
 message("Running pvbatch")
 
-if(NOT "${TEST_NAME}" STREQUAL "TemporalScriptFullWorkflow")
+if("${TEST_NAME}" STREQUAL "TemporalScriptFullWorkflow")
   execute_process_with_echo(COMMAND
     ${PVBATCH_EXECUTABLE} -sym -dr
     ${COPROCESSING_DRIVER_SCRIPT}
-    ${COPROCESSING_TEST_DIR}/cptest.py 1
     WORKING_DIRECTORY ${COPROCESSING_TEST_DIR}
     RESULT_VARIABLE rv)
 else()
-  execute_process_with_echo(COMMAND
-    ${PVBATCH_EXECUTABLE} -sym -dr
-    ${COPROCESSING_DRIVER_SCRIPT}
-    WORKING_DIRECTORY ${COPROCESSING_TEST_DIR}
-    RESULT_VARIABLE rv)
+  if("${TEST_NAME}" STREQUAL "ExportNow")
+    #don't need batch for this, but the rest of the infrastructure
+    #is handy
+    set(rv 0)
+  else()
+    execute_process_with_echo(COMMAND
+      ${PVBATCH_EXECUTABLE} -sym -dr
+      ${COPROCESSING_DRIVER_SCRIPT}
+      ${COPROCESSING_TEST_DIR}/cptest.py 1
+      WORKING_DIRECTORY ${COPROCESSING_TEST_DIR}
+      RESULT_VARIABLE rv)
+  endif()
 endif()
 
 if(rv)
@@ -96,20 +103,36 @@ endif()
 
 if("${TEST_NAME}" STREQUAL "CoProcessingFullWorkflowCinemaComposite")
   if(NOT EXISTS "${COPROCESSING_TEST_DIR}/cinema/composite_image/info.json" OR
-     NOT EXISTS "${COPROCESSING_TEST_DIR}/cinema/composite_image/phi=0/theta=0/time=0/vis=0/Slice1=0/colorSlice1=0.Z" OR
-     NOT EXISTS "${COPROCESSING_TEST_DIR}/cinema/composite_image/phi=0/theta=0/time=0/vis=0/Slice1=0/colorSlice1=1.png" OR
-     NOT EXISTS "${COPROCESSING_TEST_DIR}/cinema/composite_image/phi=0/theta=0/time=0/vis=0/Slice1=0/colorSlice1=2.Z")
-    message(FATAL_ERROR "Catalyst did not generate a composite cinema store!")
+     NOT EXISTS "${COPROCESSING_TEST_DIR}/cinema/composite_image/phi=0/theta=0/time=0/vis=0/Slice1=0")
+    message(FATAL_ERROR "Cinema did not generate a good composite directory.")
+  endif()
+  file(GLOB rfiles LIST_DIRECTORIES false "${COPROCESSING_TEST_DIR}/cinema/composite_image/phi=0/theta=0/time=0/vis=0/Slice1=0/*.png")
+  list(LENGTH rfiles lenrf)
+  if(NOT lenrf EQUAL 1)
+    message(FATAL_ERROR "Cinema did not generate a luminance image.")
+  endif()
+  file(GLOB rfiles LIST_DIRECTORIES false "${COPROCESSING_TEST_DIR}/cinema/composite_image/phi=0/theta=0/time=0/vis=0/Slice1=0/*.Z")
+  list(LENGTH rfiles lenrf)
+  if(NOT lenrf EQUAL 2)
+    message(FATAL_ERROR "Cinema did not generate a depth or value image.")
   endif()
   return()
 endif()
 
 if("${TEST_NAME}" STREQUAL "CoProcessingFullWorkflowCinemaCompositeFloat")
   if(NOT EXISTS "${COPROCESSING_TEST_DIR}/cinema/composite_fl_image/info.json" OR
-     NOT EXISTS "${COPROCESSING_TEST_DIR}/cinema/composite_fl_image/phi=0/theta=0/time=0/vis=0/Slice1=0/colorSlice1=0.Z" OR
-     NOT EXISTS "${COPROCESSING_TEST_DIR}/cinema/composite_fl_image/phi=0/theta=0/time=0/vis=0/Slice1=0/colorSlice1=1.png" OR
-     NOT EXISTS "${COPROCESSING_TEST_DIR}/cinema/composite_fl_image/phi=0/theta=0/time=0/vis=0/Slice1=0/colorSlice1=2.Z")
-    message(FATAL_ERROR "Catalyst did not generate a composite cinema store (float value images)!")
+     NOT EXISTS "${COPROCESSING_TEST_DIR}/cinema/composite_fl_image/phi=0/theta=0/time=0/vis=0/Slice1=0/")
+    message(FATAL_ERROR "Cinema did not generate a good composite directory.")
+  endif()
+  file(GLOB rfiles LIST_DIRECTORIES false "${COPROCESSING_TEST_DIR}/cinema/composite_fl_image/phi=0/theta=0/time=0/vis=0/Slice1=0/*.png")
+  list(LENGTH rfiles lenrf)
+  if(NOT lenrf EQUAL 1)
+    message(FATAL_ERROR "Cinema did not generate a luminance image.")
+  endif()
+  file(GLOB rfiles LIST_DIRECTORIES false "${COPROCESSING_TEST_DIR}/cinema/composite_fl_image/phi=0/theta=0/time=0/vis=0/Slice1=0/*.Z")
+  list(LENGTH rfiles lenrf)
+  if(NOT lenrf EQUAL 2)
+    message(FATAL_ERROR "Cinema did not generate a depth or value image.")
   endif()
   return()
 endif()
@@ -121,6 +144,20 @@ if("${TEST_NAME}" STREQUAL "TemporalScriptFullWorkflow")
   endif()
   if(NOT EXISTS "${COPROCESSING_TEST_DIR}/RenderView1_4.png")
     message(FATAL_ERROR "TemporalScript did not generate a screen capture!")
+  endif()
+  return()
+endif()
+
+if("${TEST_NAME}" STREQUAL "ExportNow")
+  if(NOT EXISTS "${COPROCESSING_TEST_DIR}/CinD/Slice1_0.vtp" AND
+     NOT EXISTS "${COPROCESSING_TEST_DIR}/CinD/Slice1_0.pvtp")
+    message(FATAL_ERROR "ExportNow did not generate a data extract!")
+  endif()
+  if(NOT EXISTS "${COPROCESSING_TEST_DIR}/CinD/RenderView1_0.png")
+    message(FATAL_ERROR "ExportNow did not generate a screen capture!")
+  endif()
+  if(NOT EXISTS "${COPROCESSING_TEST_DIR}/CinD/data.csv")
+    message(FATAL_ERROR "ExportNow did not generate a CinemaD index!")
   endif()
   return()
 endif()

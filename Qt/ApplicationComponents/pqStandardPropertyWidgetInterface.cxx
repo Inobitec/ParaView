@@ -65,6 +65,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pqInputDataTypeDecorator.h"
 #include "pqInputSelectorWidget.h"
 #include "pqIntMaskPropertyWidget.h"
+#include "pqLightPropertyWidget.h"
 #include "pqLinePropertyWidget.h"
 #include "pqListPropertyWidget.h"
 #include "pqMoleculePropertyWidget.h"
@@ -138,7 +139,7 @@ pqPropertyWidget* pqStandardPropertyWidgetInterface::createWidgetForProperty(
   }
   else if (name == "texture_selector")
   {
-    return new pqTextureSelectorPropertyWidget(smProxy, parentWidget);
+    return new pqTextureSelectorPropertyWidget(smProxy, smProperty, parentWidget);
   }
   else if (name == "shader_replacements_selector")
   {
@@ -296,9 +297,9 @@ pqPropertyWidget* pqStandardPropertyWidgetInterface::createWidgetForPropertyGrou
   {
     return new pqCylinderPropertyWidget(proxy, group, parentWidget);
   }
-  else if (panelWidget == "DistancePropertyWidget")
+  else if (panelWidget == "InteractiveLight")
   {
-    return new pqDistancePropertyWidget(proxy, group, parentWidget);
+    return new pqLightPropertyWidget(proxy, group, parentWidget);
   }
   else if (panelWidget == "2DLinePropertyWidget")
   {

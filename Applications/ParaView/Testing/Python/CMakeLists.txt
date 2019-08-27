@@ -8,7 +8,9 @@ set(${_vtk_build_test}_TEST_LABELS paraview)
 
 ExternalData_Expand_Arguments(ParaViewData _
   # data files
+  "DATA{${paraview_test_data_directory_input}/Data/blow.vtk}"
   "DATA{${paraview_test_data_directory_input}/Data/can.ex2}"
+  "DATA{${paraview_test_data_directory_input}/Data/iron_protein.vtk}"
   "DATA{${paraview_test_data_directory_input}/Data/multicomb_0.vts}"
 
   # baselines
@@ -23,13 +25,6 @@ if (numpy_found)
     NO_DATA NO_VALID NO_RT
     TestAnnotateAttributeData.py
     )
-
-  if (TARGET ParaView::CinemaPython)
-    paraview_add_test_python(
-      NO_DATA NO_VALID NO_RT
-      CinemaAERTest.py
-      )
-  endif ()
 
   paraview_add_test_python(
     NO_DATA NO_RT
@@ -70,14 +65,18 @@ paraview_add_test_python(
 
 paraview_add_test_python(
   NO_DATA NO_VALID NO_OUTPUT NO_RT
-  TestResetProperty.py
+  AppendDatasetsPolyData.py
+  MergeBlocksPolyData.py
   PointPicking.py
+  TestResetProperty.py
 )
 
 paraview_add_test_python(
   NO_VALID NO_RT
   ExportCSV.py
+  LoadStateWithOptions.py
   Plot3DReader.py
+  SaveDataWithArraySelection.py
 )
 
 # These tests could run safely in serial and parallel.
@@ -85,6 +84,7 @@ set(PVBATCH_TESTS
   BatchAxesGrid.py
   PLYWriter.py
   VolumeCellSelection.py
+  SaveDataWithArraySelection.py,NO_VALID
 )
 if(NOT APPLE)
   # temporarily disable on mac due to bugs in
@@ -100,7 +100,7 @@ foreach (tfile IN LISTS PVBATCH_TESTS)
 endforeach ()
 if (PARAVIEW_USE_MPI AND MPIEXEC_EXECUTABLE)
   # run the tests in parallel
-  set(${_vtk_build_test}_NUMPROCS 3)
+  set(_NUMPROCS 3)
   paraview_add_test_pvbatch_mpi(
     JUST_VALID
     ${PVBATCH_TESTS}
@@ -150,3 +150,26 @@ if(BUILD_SHARED_LIBS)
     TestRemoteProgrammableFilter.py
     )
 endif()
+
+#------------------------------------------------------------------------------
+# add a test for stereo batch (#18974).
+set(paraview_pvbatch_args --stereo --stereo-type=SplitViewportHorizontal)
+paraview_add_test_pvbatch(
+  NO_DATA NO_RT
+  TestStereoSaveScreenshot.py
+)
+if(PARAVIEW_USE_MPI)
+  paraview_add_test_pvbatch_mpi(
+    NO_DATA NO_RT
+    TestStereoSaveScreenshot.py
+  )
+endif()
+unset(paraview_pvbatch_args)
+
+set(paraview_python_args --stereo --stereo-type=SplitViewportHorizontal)
+paraview_add_test_python(
+  NO_DATA NO_RT
+  TestStereoSaveScreenshot.py
+)
+unset(paraview_python_args)
+#------------------------------------------------------------------------------

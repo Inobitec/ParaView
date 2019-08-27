@@ -30,11 +30,6 @@ set(sources
   ParaViewMainWindow.h
   ParaViewMainWindow.ui)
 
-set(paraview_forward_executable OFF)
-if (UNIX AND NOT APPLE)
-  set(paraview_forward_executable ON)
-endif ()
-
 find_package(Qt5 REQUIRED QUIET COMPONENTS Core Widgets)
 
 if (APPLE)
@@ -63,9 +58,8 @@ paraview_client_add(
   BUNDLE_PLIST      "${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist.in"
   APPLICATION_ICON  "${CMAKE_CURRENT_SOURCE_DIR}/pvIcon.ico"
   SOURCES           ${sources}
-  PLUGINS_TARGET    paraview_plugins
-  APPLICATION_XMLS  ${xmls}
-  FORWARD_EXECUTABLE "${paraview_forward_executable}")
+  PLUGINS_TARGETS   ParaView::paraview_plugins
+  APPLICATION_XMLS  ${xmls})
 
 find_package(Qt5 REQUIRED QUIET COMPONENTS Widgets)
 
@@ -85,8 +79,12 @@ if (PARAVIEW_ENABLE_EMBEDDED_DOCUMENTATION)
 endif ()
 
 if (PARAVIEW_ENABLE_PYTHON)
+  target_compile_definitions(paraview
+    PRIVATE
+      PARAVIEW_ENABLE_PYTHON)
   target_link_libraries(paraview
     PRIVATE
+      ParaView::pvpythonmodules
       ParaView::pqPython
       ParaView::PythonInitializer)
 endif ()

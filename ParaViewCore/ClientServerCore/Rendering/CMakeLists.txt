@@ -49,10 +49,14 @@ set(classes
   vtkGlyph3DRepresentation
   vtkImageSliceRepresentation
   vtkImageVolumeRepresentation
-  vtkMPIMoveData
+  vtkLogoSourceRepresentation
   vtkMoleculeRepresentation
+  vtkMPIMoveData
   vtkOutlineRepresentation
   vtkPExtentTranslator
+  vtkPointGaussianRepresentation
+  vtkPolarAxesRepresentation
+  vtkProgressBarSourceRepresentation
   vtkPVBoxChartRepresentation
   vtkPVCacheKeeper
   vtkPVCacheKeeperPipeline
@@ -80,22 +84,19 @@ set(classes
   vtkPVParallelCoordinatesRepresentation
   vtkPVPlotMatrixRepresentation
   vtkPVPlotMatrixView
+  vtkPVProcessWindow
   vtkPVProminentValuesInformation
   vtkPVRayCastPickingHelper
+  vtkPVRenderingCapabilitiesInformation
   vtkPVRenderView
   vtkPVRenderViewSettings
-  vtkPVRenderingCapabilitiesInformation
   vtkPVRepresentedDataInformation
   vtkPVSelectionInformation
   vtkPVStreamingPiecesInformation
-  vtkPVSynchronizedRenderWindows
   vtkPVSynchronizedRenderer
   vtkPVView
   vtkPVXYChartView
   vtkPVXYChartViewInteractive
-  vtkPointGaussianRepresentation
-  vtkPolarAxesRepresentation
-  vtkProgressBarSourceRepresentation
   vtkQuartileChartRepresentation
   vtkRulerSourceRepresentation
   vtkSelectionDeliveryFilter
@@ -108,15 +109,8 @@ set(classes
   vtkThreeSliceFilter
   vtkUnstructuredGridVolumeRepresentation
   vtkXYChartRepresentation
+  vtkViewLayout
   )
-
-if (TARGET VTK::WrappingPythonCore AND TARGET VTK::PythonInterpreter)
-  # TODO: Split these into a separate module so that there isn't a public
-  # optional dependency.
-  list(APPEND classes
-    vtkPythonRepresentation
-    vtkPythonView)
-endif ()
 
 if (TARGET VTK::ParallelMPI AND TARGET ParaView::icet)
   # TODO: Split these into a separate module so that there isn't a public

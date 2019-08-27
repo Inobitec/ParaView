@@ -707,16 +707,35 @@
     </Proxy>
     <Proxy class="vtkPVBox" name="Box">
       <InputProperty is_internal="1" name="Input" />
-      <DoubleVectorProperty command="SetBounds"
+      <IntVectorProperty name="UseReferenceBounds"
+        command="SetUseReferenceBounds"
+        number_of_elements="1"
+        default_values="0">
+        <BooleanDomain name="bool" />
+      </IntVectorProperty>
+      <DoubleVectorProperty command="SetReferenceBounds"
                             default_values="0 1 0 1 0 1"
                             name="Bounds"
-                            number_of_elements="6"></DoubleVectorProperty>
+                            number_of_elements="6">
+        <BoundsDomain mode="data_bounds" name="range">
+          <RequiredProperties>
+            <Property function="Input" name="Input" />
+          </RequiredProperties>
+        </BoundsDomain>
+        <Hints>
+          <NoDefault />
+        </Hints>
+      </DoubleVectorProperty>
       <DoubleVectorProperty animateable="1"
                             command="SetPosition"
                             default_values="0.0 0.0 0.0"
                             name="Position"
                             number_of_elements="3">
-        <DoubleRangeDomain name="range" />
+        <BoundsDomain default_mode="min" mode="normal" name="range">
+          <RequiredProperties>
+            <Property function="Input" name="Input" />
+          </RequiredProperties>
+        </BoundsDomain>
         <Documentation>
           Set the position of the box.
         </Documentation>
@@ -734,9 +753,13 @@
       <DoubleVectorProperty animateable="1"
                             command="SetScale"
                             default_values="1.0 1.0 1.0"
-                            name="Scale"
+                            name="Length"
                             number_of_elements="3">
-        <DoubleRangeDomain name="range" />
+        <BoundsDomain default_mode="max" mode="component_magnitude" name="range">
+          <RequiredProperties>
+            <Property function="Input" name="Input" />
+          </RequiredProperties>
+        </BoundsDomain>
         <Documentation>
           Set the size of the box via a scale factor.
         </Documentation>
@@ -744,9 +767,10 @@
       <PropertyGroup label="Box Parameters" panel_widget="InteractiveBox">
         <Property function="Position" name="Position" />
         <Property function="Rotation" name="Rotation" />
-        <Property function="Scale" name="Scale" />
-        <Property function="PlaceWidget" name="Bounds" />
+        <Property function="Scale" name="Length" />
         <Property function="Input" name="Input" />
+        <Property function="UseReferenceBounds" name="UseReferenceBounds" />
+        <Property function="ReferenceBounds" name="Bounds" />
       </PropertyGroup>
       <Hints>
         <ProxyList>
@@ -1298,6 +1322,67 @@
                     name="FontSize" />
         </ExposedProperties>
       </SubProxy>
+    </Proxy>
+
+    <Proxy class="vtkFlagpoleLabel"
+           name="FlagpoleLabel"
+           processes="client|dataserver|renderserver"
+           >
+      <Documentation>FlagpoleLabel is a 3D representation for a text
+     source.</Documentation>
+      <DoubleVectorProperty name="BasePosition"
+                            command="SetBasePosition"
+                            number_of_elements="3"
+                            default_values="0.0 0.0 0.0"
+                            >
+        <DoubleRangeDomain name="range" />
+        <Documentation>
+          The world coordinate position of the base of the flagpole.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="TopPosition"
+                            command="SetTopPosition"
+                            number_of_elements="3"
+                            default_values="0.0 1.0 0.0"
+                            >
+        <DoubleRangeDomain name="range" />
+        <Documentation>
+          The world coordinate position of the top of the flagpole.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="FlagSize"
+                            command="SetFlagSize"
+                            number_of_elements="1"
+                            default_values="1.0"
+                            >
+        <DoubleRangeDomain  min="0.001" name="range" />
+        <Documentation>
+          The size of the flag. 1.0 is the default size which corresponds to
+          a preset texels/window value. Adjust this to increase or decrease
+          the default size.The world coordinate position of the top of the
+          flagpole.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <SubProxy command="SetTextProperty">
+        <Proxy name="TextProperty"
+               proxygroup="properties"
+               proxyname="TextProperty"></Proxy>
+        <ExposedProperties>
+          <Property name="Color"/>
+          <Property name="Opacity"/>
+          <Property name="FontFamily"/>
+          <Property name="FontFile"/>
+          <Property name="Bold"/>
+          <Property name="Italic"/>
+          <Property name="Shadow"/>
+          <Property name="FontSize"/>
+          <Property name="Justification"/>
+        </ExposedProperties>
+      </SubProxy>
+      <!-- End of FlagpoleLabel -->
     </Proxy>
 
     <!-- ================================================================== -->
@@ -2827,7 +2912,8 @@
       <!-- End of TimerLog -->
     </Proxy>
     <ViewLayoutProxy name="ViewLayout"
-                     processes="client">
+                     class="vtkViewLayout"
+                     processes="client|renderserver">
       <Documentation>Proxy used to manage layout for multiple views.</Documentation>
       <IntVectorProperty name="PreviewMode"
         number_of_elements="2"
@@ -2838,6 +2924,7 @@
         </Documentation>
       </IntVectorProperty>
       <IntVectorProperty name="SeparatorWidth"
+        command="SetSeparatorWidth"
         number_of_elements="1"
         default_values="1">
         <IntRangeDomain name="range" min="0" max="10" />
@@ -2846,6 +2933,7 @@
         </Documentation>
       </IntVectorProperty>
       <DoubleVectorProperty name="SeparatorColor"
+        command="SetSeparatorColor"
         number_of_elements="3"
         default_values="0.937 0.922 0.906">
         <DoubleRangeDomain name="range" min="0 0 0" max="1 1 1" />
@@ -2854,12 +2942,6 @@
         </Documentation>
       </DoubleVectorProperty>
     </ViewLayoutProxy>
-    <Proxy class="vtkViewLayout"
-           name="InternalViewLayoutHelper"
-           processes="renderserver">
-      <Documentation>Proxy used to manage layout for multiple
-      views.</Documentation>
-    </Proxy>
     <Proxy class="vtkPVRayCastPickingHelper"
            name="PickingHelper"
            processes="dataserver">
@@ -3126,6 +3208,13 @@
                             number_of_elements="1">
         <Documentation>Name of the file to be written.</Documentation>
       </StringVectorProperty>
+      <IntVectorProperty command="SetInlineData"
+                         default_values="0"
+                         name="InlineData"
+                         number_of_elements="1">
+        <BooleanDomain name="bool" />
+        <Documentation>Turn on inlining of buffer data.</Documentation>
+      </IntVectorProperty>
       <Hints>
         <ExporterFactory extensions="gltf" />
       </Hints>
@@ -3676,21 +3765,6 @@
            class="vtkPolygonalSurfaceContourLineInterpolator"
            name="PolygonalSurfaceContourLineInterpolator"></Proxy>
   </ProxyGroup>
-  <ProxyGroup name="tile_helper">
-    <Proxy class="vtkTileDisplayHelper"
-           name="TileDisplayHelper"
-           processes="renderserver">
-      <Documentation>Helper proxy used to enable/disable server side tile image
-      dump.</Documentation>
-      <StringVectorProperty command="SetDumpImagePath"
-                            default_values=""
-                            name="DumpImagePath"
-                            number_of_elements="1">
-        <Documentation>Full Path + prefix file name. The image full path will
-        be: ${DumpImagePath}-Tile${processId}.png</Documentation>
-      </StringVectorProperty>
-    </Proxy>
-  </ProxyGroup>
   <ProxyGroup name="coprocessing">
     <LiveInsituLinkProxy name="LiveInsituLink" class="vtkLiveInsituLink"
       processes="dataserver">
@@ -3763,8 +3837,12 @@
       </IntVectorProperty>
 
       <StringVectorProperty name="RootDirectory"
-                         number_of_elements="1"
-                         default_values="">
+                            number_of_elements="1"
+                            default_values="">
+        <FileListDomain name="directory" />
+        <Hints>
+          <UseDirectoryName/>
+        </Hints>
         <Documentation>
           Defines a top level directory where Catalyst output files are placed under.
         </Documentation>
@@ -3825,8 +3903,7 @@
       <IntVectorProperty name="SaveDTable"
                          label="Save Cinema D Table"
                          default_values="0"
-                         number_of_elements="1"
-                         panel_visibility="advanced">
+                         number_of_elements="1">
         <BooleanDomain name="bool" />
         <Documentation>
           Creates a Cinema table that indexes all output files.
@@ -4198,51 +4275,6 @@
       <WriterProxy group="writers" name="CSVWriter" />
      </Hints>
      <!-- End of XMLHierarchicalBoxDataWriter -->
-    </SourceProxy>
-
-    <SourceProxy name="ADIOSWriter" class="vtkPVNullSource"
-      label="VTK ADIOS Writer">
-      <InputProperty name="Input">
-        <ProxyGroupDomain name="groups">
-          <Group name="sources" />
-          <Group name="filters" />
-        </ProxyGroupDomain>
-        <DataTypeDomain composite_data_supported="0"
-                        name="input_type">
-          <DataType value="vtkImageData" />
-          <DataType value="vtkPolyData" />
-          <DataType value="vtkUnstructuredGrid" />
-        </DataTypeDomain>
-
-        <Documentation>
-          The input.
-        </Documentation>
-      </InputProperty>
-
-      <StringVectorProperty name="FileName"
-                            number_of_elements="1"
-                            default_values="filename.vta">
-      </StringVectorProperty>
-      <IntVectorProperty name="WriteFrequency"
-        number_of_elements="1"
-        default_values="1">
-        <IntRangeDomain name="range" min="1" />
-      </IntVectorProperty>
-
-      <IntVectorProperty name="PaddingAmount"
-        number_of_elements="1"
-        default_values="0">
-        <IntRangeDomain name="range" min="0" />
-      </IntVectorProperty>
-
-      <Hints>
-        <!-- TODO: this doesn't work yet -->
-        <PipelineIcon name=":pqComponents/pqSave32.png" />
-
-        <!-- This will help us when exporting the script state -->
-        <WriterProxy group="writers" name="ADIOSWriter" />
-      </Hints>
-      <!-- End of ADIOSWriter -->
     </SourceProxy>
 
     <SourceProxy name="ExodusIIWriter" class="vtkPVNullSource"
@@ -4810,12 +4842,12 @@
           <PropertyWidgetDecorator type="CompositeDecorator">
             <Expression type="and">
               <Expression type="or">
-                <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Deferred Rendering" value="1" />
-                <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Deferred Rendering" value="2" />
+                <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="DeferredRendering" value="1" />
+                <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="DeferredRendering" value="2" />
               </Expression>
               <Expression type="or">
-                <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Camera Model" value="2" />
-                <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Camera Model" value="3" />
+                <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="CameraModel" value="2" />
+                <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="CameraModel" value="3" />
               </Expression>
             </Expression>
           </PropertyWidgetDecorator>
@@ -4848,12 +4880,12 @@
           <PropertyWidgetDecorator type="CompositeDecorator">
             <Expression type="and">
               <Expression type="or">
-                <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Deferred Rendering" value="1" />
-                <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Deferred Rendering" value="2" />
+                <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="DeferredRendering" value="1" />
+                <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="DeferredRendering" value="2" />
               </Expression>
               <Expression type="or">
-                <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Camera Model" value="2" />
-                <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Camera Model" value="3" />
+                <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="CameraModel" value="2" />
+                <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="CameraModel" value="3" />
               </Expression>
             </Expression>
           </PropertyWidgetDecorator>

@@ -11,7 +11,9 @@ ExternalData_Expand_Arguments(ParaViewData _
   "DATA{${paraview_test_data_directory_input}/Data/AMReX-MFIX/plt00005/Level_0/,REGEX:.*}"
   "DATA{${paraview_test_data_directory_input}/Data/AMReX-MFIX/plt00005/particles/,REGEX:.*}"
   "DATA{${paraview_test_data_directory_input}/Data/AMReX-MFIX/plt00005/particles/Level_0/,REGEX:.*}"
+  "DATA{${paraview_test_data_directory_input}/Data/3GQP.pdb}"
   "DATA{${paraview_test_data_directory_input}/Data/can-restarts/,REGEX:.*}"
+  "DATA{${paraview_test_data_directory_input}/Data/cloud_layers_1k.jpg}"
   "DATA{${paraview_test_data_directory_input}/Data/CompositeGlyphInput.vtp}"
   "DATA{${paraview_test_data_directory_input}/Data/CompositeGlyphTree.vtm}"
   "DATA{${paraview_test_data_directory_input}/Data/CompositeGlyphTree/,REGEX:.*}"
@@ -74,7 +76,12 @@ ExternalData_Expand_Arguments(ParaViewData _
   "DATA{${paraview_test_data_directory_input}/Data/multicomb_2.vts}"
   "DATA{${paraview_test_data_directory_input}/Data/non_convex_polygon.vtu}"
   "DATA{${paraview_test_data_directory_input}/Data/office.binary.vtk}"
+  "DATA{${paraview_test_data_directory_input}/Data/pbrSpheres.vtp}"
+  "DATA{${paraview_test_data_directory_input}/Data/pbrSpheresAlbedo.jpg}"
+  "DATA{${paraview_test_data_directory_input}/Data/pbrSpheresORM.jpg}"
   "DATA{${paraview_test_data_directory_input}/Data/pointSet.vtk}"
+  "DATA{${paraview_test_data_directory_input}/Data/ParaView_Mark.png}"
+  "DATA{${paraview_test_data_directory_input}/Data/ParaView_Logo.png}"
   "DATA{${paraview_test_data_directory_input}/Data/porphyrin.cml}"
   "DATA{${paraview_test_data_directory_input}/Data/quadraticTetra01.vtu}"
   "DATA{${paraview_test_data_directory_input}/Data/quadratic_tets_with_ghost_cells.pvtu}"
@@ -91,6 +98,7 @@ ExternalData_Expand_Arguments(ParaViewData _
   "DATA{${paraview_test_data_directory_input}/Data/testxmlpartds.vtpd}"
   "DATA{${paraview_test_data_directory_input}/Data/testxmlpartds/,REGEX:.*}"
   "DATA{${paraview_test_data_directory_input}/Data/timestep_0_15.vts}"
+  "DATA{${paraview_test_data_directory_input}/Data/time_source.pvsm}"
   "DATA{${paraview_test_data_directory_input}/Data/tube.exo}"
   "DATA{${paraview_test_data_directory_input}/Data/vehicle_data.csv}"
   "DATA{${paraview_test_data_directory_input}/Data/viscoplastic-ring.h5}"
@@ -110,6 +118,10 @@ ExternalData_Expand_Arguments(ParaViewData _
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/AxesGrid8.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/AxesGrid9.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/BatchAxesGrid.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/BoxWidget-Transform.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/BoxWidget-ClipDefault.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/BoxWidget-ClipCheckUseReferenceBounds.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/BoxWidget-ClipUncheckUseReferenceBounds.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/CalculatorQuotedVariable1.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/CalculatorQuotedVariable2.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/CameraLink-Parallel.png}"
@@ -149,6 +161,9 @@ ExternalData_Expand_Arguments(ParaViewData _
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/DataAxesGrid2X.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/DataAxesGrid-Custom.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/DataAxesGrid-CustomWithReset.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/EllipseSource1.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/EllipseSource2.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/EllipseSource3.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/EnsembleT0.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/EnsembleT1.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/EnsembleT3.png}"
@@ -176,6 +191,7 @@ ExternalData_Expand_Arguments(ParaViewData _
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/FindDataDialog9.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/FindDataSelectLocation.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/FindDataSelectLocationMultiblock.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/FreezeQueryMultiblock.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/ForceTimeDiamond.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/Glyph3DRepresentation_Cylinder.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/Glyph3DRepresentation_Cylinder_1.png}"
@@ -195,8 +211,10 @@ ExternalData_Expand_Arguments(ParaViewData _
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/HyperTreeGridAxisCut.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/HyperTreeGridAxisReflection.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/HyperTreeGridCellCenters.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/HyperTreeGridContour.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/HyperTreeGridDepthLimiter.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/HyperTreeGridPlaneCutter.png}"
+  #"DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/HyperTreeGridThreshold.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/HyperTreeGridThreshold-DepthOne.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/HyperTreeGridThreshold-DepthTwo.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/ImportCinema.png}"
@@ -205,6 +223,7 @@ ExternalData_Expand_Arguments(ParaViewData _
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/IndexedLookupInitialization_1.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/LightAddRemove1.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/LightAddRemove2.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/LightWidget.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/LineChartSelection1.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/LineChartSelection1_1.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/LineChartSelection2.png}"
@@ -221,9 +240,13 @@ ExternalData_Expand_Arguments(ParaViewData _
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/LogColorMap7.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/LogColorMapToggle1.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/LogColorMapToggle2.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/MergePointBlocks.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/Molecule-BallStick.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/Molecule-Custom.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/Molecule-Liquorice.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/MultiBlockInspectorSelection-SelectBlock2.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/MultiBlockInspectorSelection-SelectElementBlocks.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/MultiBlockInspectorSelection-HideBlock1.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/NonlinearSubdivision0Display.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/NonlinearSubdivision0Display_1.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/NonlinearSubdivision1Display.png}"
@@ -237,19 +260,24 @@ ExternalData_Expand_Arguments(ParaViewData _
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/OBBMajorAxis.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/OBBMediumAxis.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/OBBMinorAxis.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/OpacityWidgetRange.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/PartitionedDataSet_Slice.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/PartitionedDataSet_Surface.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/PartitionedDataSetCollection_Slice.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/PartitionedDataSetCollection_Surface.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/PBRSpheres.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/PLYWriter.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/PointGaussianScaleOpacityArrayA.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/PolyLineSourceInterA.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/PointGaussianScaleOpacityArrayA.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/Preview-SingleView.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/Preview-AllViews.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/PythonAlgorithmPlugin.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/PythonAlgorithmReadersAndWriters.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/QuartilePlotArea.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/QuartilePlotArea_1.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/QuartilePlotLines.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/ReadPartitionedCGNS_BCOnly.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/ReadPartitionedCGNS_BCOnlyBlockColors.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/ReadPartitionedCGNS_CellData.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/ReadPartitionedCGNS_FamilySelection.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/ReadPartitionedCGNS_PointData.png}"
@@ -306,12 +334,14 @@ ExternalData_Expand_Arguments(ParaViewData _
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/SliceWithPlaneMultiBlockSurface_1.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/SpherePointSource_InterA.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/SpherePointSource_InterB.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/SplitViewTraceScreenshot.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/StepColorSpaceA.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/StructuredGridCellBlanking.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/StructuredGridVolumeRendering.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestCAVE-tile0.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestCAVE-tile1.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestClipCylinder.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestColorHistogram.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestColorHistogram_1.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestCompositedGeometryCulling.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestFindDataMax.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestGeometryBoundsClobber.png}"
@@ -321,7 +351,6 @@ ExternalData_Expand_Arguments(ParaViewData _
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestIsoVolume4.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestIsoVolume5.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestLineChartLabelPrefix.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestLineChartLabelPrefix_1.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestMultiServer1.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestMultiServer2.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestMultiServer3.png}"
@@ -331,35 +360,25 @@ ExternalData_Expand_Arguments(ParaViewData _
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestPythonViewScript.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/Threshold.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/ThresholdInvert.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplay3DTesting-1x2-Tile0.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplay3DTesting-1x2-Tile0_1.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplay3DTesting-1x2-Tile0_2.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplay3DTesting-1x2-Tile0_3.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplay3DTesting-1x2-Tile0_4.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplay3DTesting-1x2-Tile1.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplay3DTesting-1x2-Tile1_1.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplay3DTesting-1x2-Tile1_2.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplay3DTesting-1x2-Tile1_3.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplay3DTesting-1x2-Tile1_4.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplay3DTesting-1x2-Tile1_5.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplay3DTesting-2x2-Tile0.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplay3DTesting-2x2-Tile1.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplay3DTesting-2x2-Tile2.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplay3DTesting-2x2-Tile3.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplayScatterPlot-2x1-Tile0.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplayScatterPlot-2x1-Tile0_1.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplayScatterPlot-2x1-Tile1.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplayScatterPlot-2x1-Tile1_1.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplayScatterPlot-2x1-Tile1_2.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplayScatterPlot-2x1-Tile1_3.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplayScatterPlot-2x1-Tile1_4.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplayScatterPlot-2x2-Tile0.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplayScatterPlot-2x2-Tile1.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplayScatterPlot-2x2-Tile2.png}"
-  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplayScatterPlot-2x2-Tile3.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplaySplitView-1x1-tile0_1.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplaySplitView-1x1-tile0.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplaySplitView-2x1-tile0.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplaySplitView-2x1-tile1_1.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplaySplitView-2x1-tile1.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplaySplitView-2x2-tile0.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplaySplitView-2x2-tile1_1.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplaySplitView-2x2-tile1.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplaySplitView-2x2-tile2.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplaySplitView-2x2-tile3.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplaySplitView-3x1-tile0.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplaySplitView-3x1-tile1_1.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplaySplitView-3x1-tile1.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplaySplitView-3x1-tile2_1.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TileDisplaySplitView-3x1-tile2.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TimeStepProgressBar_Inter.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TraceExodus.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TraceMultiViews.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TraceTimeControls.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TransferFunctionResetOnVisibilityChange_AllBlocks.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TransferFunctionResetOnVisibilityChange_OneBlock.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TransferFunctionResetOnVisibilityChange_TwoBlocks.png}"
@@ -381,6 +400,7 @@ ExternalData_Expand_Arguments(ParaViewData _
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/UseDataPartitions3.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/UseDataPartitions4.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/VolumeCellSelection.png}"
+  "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/VolumeCrop.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/VolumeNoMapScalars.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/XYChart_ChangeParameters.png}"
   "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/XYChart_Default.png}"
@@ -405,9 +425,9 @@ SET (TESTS_WITHOUT_BASELINES
   FindWidget.xml
   ModifyGUIWindowTitle.xml
   OpenHelp.xml
+  OpacityWidgetRange.xml
   PartialArrayInLineChart.xml
   PointCellDataConversion.xml
-  Preview.xml
   ReloadCGNSFile.xml
   SearchBox.xml
   ServerConnectDialog.xml
@@ -424,7 +444,6 @@ endif ()
 
 if (PARAVIEW_ENABLE_PYTHON)
   list(APPEND TESTS_WITHOUT_BASELINES
-    DetachedFromLayoutIndirect.xml
     TestPythonConsole.xml
     TestPopOutWidget.xml # needs programmable filter
     MultipleNumberOfComponents.xml
@@ -435,6 +454,7 @@ endif()
 SET (TESTS_WITH_INLINE_COMPARES
   AxesGrid.xml
   BoundingRuler.xml
+  BoxWidget.xml
   CalculatorQuotedVariable.xml
   CameraLink.xml
   ChartLoadNoVariables.xml
@@ -442,15 +462,18 @@ SET (TESTS_WITH_INLINE_COMPARES
   Connectivity.xml
   Contour.xml
   DataAxesGrid2X.xml
+  EllipseSource.xml
   Ensemble.xml
   FastUniformGridSource.xml
   FileSeries.xml
-  #HyperTreeGridAxisClip.xml
+  HyperTreeGridAxisClip.xml
   #HyperTreeGridAxisCut.xml
-  #HyperTreeGridAxisReflection.xml
-  #HyperTreeGridCellCenters.xml
-  #HyperTreeGridContour.xml
-  #HyperTreeGridPlaneCutter.xml
+  HyperTreeGridAxisReflection.xml
+  HyperTreeGridCellCenters.xml
+  HyperTreeGridContour.xml
+  HyperTreeGridDepthLimiter.xml
+  HyperTreeGridPlaneCutter.xml
+  HyperTreeGridThreshold.xml
   LightAddRemove.xml
   LineChartSelection.xml
   LoadStateMultiView.xml
@@ -458,9 +481,11 @@ SET (TESTS_WITH_INLINE_COMPARES
   LogColorMapToggle.xml
   MemoryInspectorPanel.xml
   Molecule.xml
+  MultiBlockInspectorSelection.xml
   NonlinearSubdivisionDisplay.xml
   PartitionedDataSet.xml
   PartitionedDataSetCollection.xml
+  Preview.xml
   QuartilePlot.xml
   ReadPartitionedCGNS.xml
   RectilinearFractal.xml
@@ -479,17 +504,6 @@ SET (TESTS_WITH_INLINE_COMPARES
   XYHistogram.xml
 )
 
-# These tests do not work in parallel due to issues with
-# partitioned vtkHyperTreeGrids. When those issues are fixed
-# these tests should be enabled in parallel again by adding
-# them back to TESTS_WITH_INLINE_COMPARES
-SET (HTG_TESTS_WITH_INLINE_COMPARES
-  HyperTreeGridDepthLimiter.xml
-  HyperTreeGridThreshold.xml
-)
-paraview_add_client_tests(
-  TEST_SCRIPTS ${HTG_TESTS_WITH_INLINE_COMPARES}
-)
 
 if(NOT APPLE)
   # Workaround to avoid testing failures on high-res Retina displays on Macs
@@ -512,23 +526,25 @@ if(PARAVIEW_ENABLE_VISITBRIDGE)
     VisItBridgeLAMMPSDump2.xml
     VisItBridgeNas.xml
     VisItBridgeNek.xml
+    VisItBridgeMoleculeColoring.xml
     VisItBridgePdb.xml
     VisItBridgePFLOTRAN.xml
     VisItBridgePixie.xml
     VisItBridgeSamrai.xml
     TruchasReaderWithVisItBridge.xml)
 else()
-  # The TruchasReader test behavior changes depending on whether the
-  # VisItBridge is enabled. A number of VisIt readers support
-  # reading of .h5 files, so when the VisItBridge is enabled,
+  # A number of VisIt readers support reading of .pdb and
+  # of .h5 files, so when the VisItBridge is enabled,
   # the test must take extra steps to select the correct reader.
+  #
   # When the VisItBridge is not enabled, there is no need to select
   # a reader.
   list(APPEND TESTS_WITH_BASELINES
+    MoleculeColoring.xml
     TruchasReader.xml)
 endif()
 
-if(PARAVIEW_USE_OSPRAY)
+if(PARAVIEW_USE_RAYTRACING)
   list(APPEND TESTS_WITH_BASELINES
     OSPRay.xml)
 endif()
@@ -656,8 +672,10 @@ list(APPEND TESTS_WITH_BASELINES
   AnimatePipelineTime.xml
   AngularPeriodicFilter.xml
   3DWidgetInCustomFilter.xml
+  BlockOpacities.xml
   CalcParens.xml
   Calculator.xml
+  CalculatorInput.xml
   ChangeGlyphRepVisibility.xml
   ChangingTimestepsInStateFiles.xml
   ChartAxisRangeAndLabels.xml
@@ -700,6 +718,7 @@ list(APPEND TESTS_WITH_BASELINES
   FeatureEdges.xml
   FFTOverTime.xml
   FieldDataBlocks.xml
+  Flagpole.xml
   Flow.xml
   Flow2.xml
   FollowHiddenData.xml
@@ -718,6 +737,7 @@ list(APPEND TESTS_WITH_BASELINES
   InteractiveViewLinkOffscreen.xml
   InteractiveViewLinkOnscreen.xml
   InteractiveViewLinkState.xml
+  LightWidget.xml
   LinesAsTubes.xml
   LoadPartiallyUpdatedStateFiles.xml
   LoadSaveStateAnimation.xml
@@ -727,11 +747,13 @@ list(APPEND TESTS_WITH_BASELINES
   LoadStateUseExisting.xml
   LoadSaveStateVolume.xml
   ManyTypesXMLWriterReader.xml
+  MergePointBlocks.xml
   MoleculeBonds.xml
   MoleculeToLines.xml
   MultiBlockAttributes1.xml
   MultiBlockInspector.xml
   MultiBlockSingleBlock.xml
+  MultiBlockVolumeRendering.xml
   MultiSliceMultiBlock.xml
   MultiSliceWavelet.xml
   NormalGlyphs.xml
@@ -741,6 +763,7 @@ list(APPEND TESTS_WITH_BASELINES
   OrderedGroupDatasets.xml
   OrthographicView.xml
   OutOfRangeColors.xml
+  PBRSpheres.xml
   PlotDataOverTime-NonDistributed.xml
   PlotEdges2.xml
   PlotEdges.xml
@@ -754,7 +777,7 @@ list(APPEND TESTS_WITH_BASELINES
   PointGaussianScaleOpacityArray.xml
   PointInterpolator.xml
   PolarAxes.xml
-  PolyLineSource.xml
+  PolyLineAndSplineSources.xml
   PropertyConversion.xml
   PropertyConversion1.xml
   PropertyConversion2.xml
@@ -818,6 +841,7 @@ list(APPEND TESTS_WITH_BASELINES
   TimeInspector.xml
   TimeStepProgressBar.xml
   Tessellate.xml
+  TextureUsages.xml
   UndoRedo.xml
   UndoRedo1.xml
   UndoRedo2.xml
@@ -829,6 +853,7 @@ list(APPEND TESTS_WITH_BASELINES
   UnstructuredOutline.xml
   UniformInverseTransformSamplingGlyph.xml
   VectorComponentHistogram.xml
+  VolumeCrop.xml
   VolumeRenderingWithContour.xml
   VolumeReprTwoIndepComp.xml
   VariableSelector.xml
@@ -890,6 +915,14 @@ if (PARAVIEW_USE_MPI)
     # Test Use Data Partitions for volume rendering
     #UseDataPartitions.xml
   )
+
+  list(APPEND TESTS_WITH_INLINE_COMPARES
+    # needs parallel server for the columns to match those in the test.
+    SpreadSheetParallelData.xml)
+
+  # test only checks for spreadsheet columns correctly in
+  # parallel client-server mode.
+  set (SpreadSheetParallelData_DISABLE_C TRUE)
 
   # DistributePoints is only tested in non-built-in mode.
   paraview_add_client_server_tests(
@@ -969,11 +1002,13 @@ if(PARAVIEW_ENABLE_PYTHON)
     TraceSaveGeometry.xml
     TraceStatisticsFilter.xml
     TraceSupplementalProxiesFully.xml
+    TraceTimeControls.xml
   )
   list(APPEND TESTS_WITH_INLINE_COMPARES
     RestoreArrayDefaultTransferFunction.xml
     RestoreDefaultTransferFunction.xml
     TraceMultiViews.xml
+    SplitViewTrace.xml
   )
   list(APPEND TESTS_WITHOUT_BASELINES
     PythonCalculator.xml
@@ -991,9 +1026,11 @@ if(PARAVIEW_ENABLE_PYTHON)
   if (numpy_found)
     list(APPEND TESTS_WITH_BASELINES
       ExodusModeShapes.xml
+      FindDataPartialArrays.xml
       FindDataSelectLocation.xml # find data needs python/numpy
       FindDataSelectLocationMultiblock.xml # find data needs python/numpy
       ForceTimeDiamond.xml
+      FreezeQueryMultiblock.xml
       IndexedLookupInitialization.xml # needs Python Calculator/numpy
       StructuredGridCellBlanking.xml
       TestFindDataMax.xml
@@ -1189,6 +1226,7 @@ set(SelectionLinkMultiple_DISABLE_CRS TRUE)
 set(SelectionLinkRemove_DISABLE_CRS TRUE)
 set(SelectionLinkReaction_DISABLE_CRS TRUE)
 set(ExportSelectionToCSV_DISABLE_CRS TRUE)
+set(BlockOpacities_DISABLE_CRS TRUE)
 
 # These tests cannot be run using ctest -j since they are affected by focus
 # changed events.
@@ -1212,12 +1250,17 @@ set (ChartAxisRangeAndLabels_FORCE_SERIAL TRUE) # Uses inline edit popups
 set (ComparativeViewOverlay_FORCE_SERIAL TRUE) # Seems to works better in serial
 set (CategoricalAutomaticAnnotations_FORCE_SERIAL TRUE) # Seems to works better in serial
 set (CategoricalOpacities_FORCE_SERIAL TRUE) # Seems to works better in serial
-
 set (LoadSaveStateVolume_FORCE_SERIAL TRUE)
+set (ShaderReplacements_FORCE_SERIAL TRUE)
+set (CustomViewpoints_FORCE_SERIAL TRUE)
+set (ExodusModeShapes_FORCE_SERIAL TRUE)
+set (LoadSaveStateAnimation_FORCE_SERIAL TRUE)
+
 # We don't support volume rendering of image data in data server & render server mode
 set(LoadSaveStateVolume_DISABLE_CRS TRUE)
 set(SeparatedColorMapOpacity_DISABLE_CRS TRUE)
 set(VolumeReprTwoIndepComp_DISABLE_CRS TRUE)
+set(VolumeCrop_DISABLE_CRS TRUE)
 
 # Set properties for CTH tests
 set(CTHAMRContour_DISABLE_CS TRUE)
@@ -1282,7 +1325,7 @@ set (VolumeRenderingWithContour_DISABLE_CRS TRUE)
 set (VolumeRenderingWithContour_THRESHOLD 50)
 set (VolumeNoMapScalars_DISABLE_CRS TRUE)
 set (VolumeNoMapScalars_THRESHOLD 50)
-
+set (MultiBlockVolumeRendering_DISABLE_CRS TRUE)
 
 # Histogram filter produces different results when running in parallel, so
 # disable it.
@@ -1369,10 +1412,9 @@ set (FFTOverTime_THRESHOLD 70) # since there's a plot, account for minor
 SET (ColorEditorVolumeControls_DISABLE_CS TRUE)
 SET (ColorEditorVolumeControls_DISABLE_CRS TRUE)
 
-# ViewSettingsDialog uses texture background which is currently supported only
-# in local render mode.
-SET (ViewSettingsDialog_DISABLE_CS TRUE)
+# ViewSettingsDialog and TextureUsages uses texture which are not supported in pvcrs mode.
 SET (ViewSettingsDialog_DISABLE_CRS TRUE)
+SET (TextureUsages_DISABLE_CRS TRUE)
 
 # MultiBlockAttributes1 requires selection which doesn't work on pvcrs
 SET (MultiBlockAttributes1_DISABLE_CRS TRUE)
@@ -1403,12 +1445,10 @@ set (LoadStateMultiView_THRESHOLD 20)
 set (ResetToVisibleRange_DISABLE_CRS TRUE)
 
 # Molecules are not supported in client-serve modes, currently.
-set (Molecule_DISABLE_CS TRUE)
-set (Molecule_DISABLE_CRS TRUE)
-
-# Because of #18421, we need to disable this test in client/server
-set (PointGaussianMultiBlockDataSet_DISABLE_CS TRUE)
-set (PointGaussianMultiBlockDataSet_DISABLE_CRS TRUE)
+#set (Molecule_DISABLE_CS TRUE)
+#set (Molecule_DISABLE_CRS TRUE)
+#set (MoleculeColoring_DISABLE_CS TRUE)
+#set (MoleculeColoring_DISABLE_CRS TRUE)
 
 ##########################################################
 # List of known incompatible tests for Collaboration
@@ -1417,7 +1457,7 @@ set (PointGaussianMultiBlockDataSet_DISABLE_CRS TRUE)
 #     - Clip, UndoRedo, UndoRedo[1-8]
 #
 #   Contains Plugin Loading actions:
-#     - LoadPlugins, NiftiReaderWriterPlugin, H5PartReaderPlugin
+#     - LoadPlugins, NiftiReaderWriterPlugin
 #
 #   Does not work in CS or CRS mode
 #     - ViewSettingsDialog, RectilinearFractal, NewColorEditor
@@ -1556,36 +1596,19 @@ paraview_add_multi_server_tests(3
    BASELINE_DIR ${PARAVIEW_TEST_BASELINE_DIR}
    TEST_SCRIPTS ${TESTS_WITH_MULTI_SERVERS_3})
 
-# Removing these test since these have been failing for a while the the testing
-# infrastrructure not catching it properly until now. We need to redo the tile display
-# testing :(.
-#set (TileDisplayScatterPlot-2x1_THRESHOLD 40)
-#add_tile_display_tests("pvcs-tile-display" 2 1
-#   BASELINE_DIR ${PARAVIEW_TEST_BASELINE_DIR}
-#   TEST_SCRIPTS TileDisplayScatterPlot-2x1.xml)
-#
-#set (TileDisplayScatterPlot-2x2_THRESHOLD 40)
-#add_tile_display_tests("pvcs-tile-display" 2 2
-#   BASELINE_DIR ${PARAVIEW_TEST_BASELINE_DIR}
-#   TEST_SCRIPTS TileDisplayScatterPlot-2x2.xml)
+paraview_add_tile_display_tests(1 1
+   TEST_SCRIPTS TileDisplaySplitView.xml)
+if (PARAVIEW_USE_MPI)
+  paraview_add_tile_display_tests(2 1
+     TEST_SCRIPTS TileDisplaySplitView.xml)
+  paraview_add_tile_display_tests(2 2
+     TEST_SCRIPTS TileDisplaySplitView.xml)
+  paraview_add_tile_display_tests(3 1
+     TEST_SCRIPTS TileDisplaySplitView.xml)
+endif()
 
-# These tests have been behaving badly across many platforms and needs to be
-# fixed before it can be useful. Disabling for now, see bug #15424.
-#set (TileDisplay3DTesting-1x2_THRESHOLD 270)
-#add_tile_display_tests("pvcs-tile-display" 1 2
-#   BASELINE_DIR ${PARAVIEW_TEST_BASELINE_DIR}
-#   TEST_SCRIPTS TileDisplay3DTesting-1x2.xml)
-
-#set (TileDisplay3DTesting-2x2_THRESHOLD 270)
-#paraview_add_tile_display_tests(2 2
-#   BASELINE_DIR ${PARAVIEW_TEST_BASELINE_DIR}
-#   TEST_SCRIPTS TileDisplay3DTesting-2x2.xml)
-
-set (TileDisplay3DTesting-2x1_THRESHOLD 270)
-paraview_add_tile_display_tests(2 1
-   BASELINE_DIR ${PARAVIEW_TEST_BASELINE_DIR}
-   TEST_SCRIPTS TileDisplay3DTesting-2x1.xml)
-
+paraview_add_cave_tests(2 "${CMAKE_CURRENT_SOURCE_DIR}/LeftRight.pvx"
+  TEST_SCRIPTS TestCAVE.xml)
 
 #------------------------------------------------------------------
 # Add tests that test command line arguments (among other things).
@@ -1600,6 +1623,11 @@ if (TARGET paraview)
     ARGS "--state=${CMAKE_CURRENT_BINARY_DIR}/exodusStateFile.3.14.1.pvsm"
     BASELINE_DIR ${PARAVIEW_TEST_BASELINE_DIR}
     TEST_SCRIPTS LoadExodusStateFile.xml)
+
+  paraview_add_client_tests(
+    ARGS "--state=${CMAKE_CURRENT_SOURCE_DIR}/boxClip.5.6.pvsm"
+    BASELINE_DIR ${PARAVIEW_TEST_BASELINE_DIR}
+    TEST_SCRIPTS BoxClipStateBackwardsCompatibility.xml)
 
   if (PARAVIEW_ENABLE_PYTHON)
     # Test whether or not we can load a Python state file with the --state

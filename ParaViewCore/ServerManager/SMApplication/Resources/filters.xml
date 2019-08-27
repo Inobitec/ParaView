@@ -1117,20 +1117,17 @@
       <!-- End AppendPolyData -->
     </SourceProxy>
     <!-- ==================================================================== -->
-    <SourceProxy class="vtkAppendFilter"
+    <SourceProxy class="vtkAppendDataSets"
                  label="Append Datasets"
                  name="Append">
-      <Documentation long_help="Takes an input of multiple datasets and output has only one unstructured grid."
+      <Documentation long_help="Takes an input of multiple datasets and output has only one unstructured grid or polydata."
                      short_help="Append multiple datasets into one.">The Append
                      Datasets filter operates on multiple data sets of any type
-                     (polygonal, structured, etc.). It merges their geometry
-                     into a single data set. Only the point and cell attributes
-                     that all of the input data sets have in common will appear
-                     in the output. The input data sets must already be
-                     collected together, either as a result of a reader that
-                     loads multiple parts (e.g., EnSight reader) or because the
-                     Group Parts filter has been run to form a collection of
-                     data sets.</Documentation>
+                     (polygonal, structured, etc.). It merges their meshes
+                     into a single dataset. If all inputs are polydata, the output
+                     is a polydata, otherwise it is an unstructured grid.
+                     Only the point and cell attributes that all of the input
+                     datasets have in common will appear in the output.</Documentation>
       <InputProperty clean_command="RemoveAllInputs"
                      command="AddInputConnection"
                      multiple_input="1"
@@ -1146,6 +1143,24 @@
         <Documentation>This property specifies the datasets to be merged into a
         single dataset by the Append Datasets filter.</Documentation>
       </InputProperty>
+      <IntVectorProperty command="SetOutputDataSetType"
+                         default_values="4"
+                         number_of_elements="1"
+                         name="OutputDataSetType"
+                         panel_visibility="advanced">
+        <EnumerationDomain name="enum">
+          <Entry text="Polygonal Mesh"
+                 value="0" />
+          <Entry text="Unstructured Grid"
+                 value="4" />
+        </EnumerationDomain>
+        <Documentation>Determines the output type produced by this filter. Only input datasets compatible
+        with the output type will be merged in the output. For example, if the output type is
+        "Polygonal Mesh", then inputs of type "Image Data", "StructuredGrid", etc. will not be merged.
+        On the other hand, if the output type is "Unstructured Grid", then inputs of almost any type
+        will be merged in the output. Defaults to "Unstructured Grid".
+        </Documentation>
+      </IntVectorProperty>
       <!-- End AppendDataSet -->
     </SourceProxy>
     <!-- ==================================================================== -->
@@ -1339,6 +1354,29 @@
       </PropertyGroup>
 
       <!-- End GenerateIdScalars -->
+    </SourceProxy>
+    <!-- ==================================================================== -->
+    <SourceProxy class="vtkGenerateGlobalIds"
+                 label="Generate Global Ids"
+                 name="GenerateGlobalIds">
+      <Documentation short_help="Generate global point and cell ids.">
+        Generate global point and cell ids. Global ids are unique ids where the same point
+        (or cell) will be assigned the same id even if the point (or cell) is duplicated among
+        multiple blocks or ranks. This filter also flags duplicated points as ghost points.
+      </Documentation>
+      <InputProperty command="SetInputConnection"
+                     name="Input">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet" />
+        </DataTypeDomain>
+        <Documentation>This property specifies the input.</Documentation>
+      </InputProperty>
+
+      <!-- End GenerateGlobalIds -->
     </SourceProxy>
     <!-- ==================================================================== -->
     <SourceProxy class="vtkCleanPolyData"
@@ -2555,9 +2593,11 @@ being of a vtkDoubleArray.</Documentation>
         </ProxyGroupDomain>
         <DataTypeDomain name="input_type">
           <DataType value="vtkDataSet" />
+          <DataType value="vtkGraph"/>
+          <DataType value="vtkTable"/>
         </DataTypeDomain>
         <InputArrayDomain name="input_array" optional="1"/>
-        <Documentation>This property specifies the input dataset to the
+        <Documentation>This property specifies the input dataset (vtkDataSet, vtkTable or vtkGraph) to the
         Calculator filter. The scalar and vector variables may be chosen from
         this dataset's arrays.</Documentation>
       </InputProperty>
@@ -2565,12 +2605,14 @@ being of a vtkDoubleArray.</Documentation>
                          default_values="0"
                          name="AttributeType"
                          number_of_elements="1">
-        <EnumerationDomain name="enum">
-          <Entry text="Point Data" value="0" />
-          <Entry text="Cell Data" value="1" />
-        </EnumerationDomain>
-        <Documentation>This property determines whether the computation is to
-        be performed on point-centered or cell-centered data.</Documentation>
+        <FieldDataDomain name="enum">
+          <RequiredProperties>
+            <Property function="Input"
+                      name="Input" />
+          </RequiredProperties>
+        </FieldDataDomain>
+        <Documentation>This property determines on which types of field data the computation is to
+        be performed on.</Documentation>
       </IntVectorProperty>
       <IntVectorProperty command="SetCoordinateResults"
                          default_values="0"
@@ -4685,6 +4727,40 @@ array.
         levels and do not mind seams.</Documentation>
       </IntVectorProperty>
       <!-- End  PolyDataNormals -->
+    </SourceProxy>
+    <!-- ==================================================================== -->
+    <SourceProxy class="vtkPolyDataTangents"
+                 label="Generate Surface Tangents"
+                 name="PolyDataTangents">
+      <Documentation long_help="This filter will produce surface tangents used for normal mapping."
+                     short_help="Produce surface point tangents.">This filter
+                     generates surface tangents at the points of the input
+                     polygonal dataset based on the normals and the texture coordinates.
+                     The resulting dataset is also polygonal. The tangents are required when using
+                     a normal texture.</Documentation>
+      <InputProperty command="SetInputConnection"
+                     name="Input">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData" />
+        </DataTypeDomain>
+        <Documentation>This property specifies the input to the Tangents
+        Generation filter.</Documentation>
+      </InputProperty>
+      <IntVectorProperty command="SetComputeCellTangents"
+                         default_values="0"
+                         name="ComputeCellTangents"
+                         number_of_elements="1">
+        <BooleanDomain name="bool" />
+        <Documentation>This filter computes the tangents at the points in the
+        data set. In the process of doing this it computes polygon tangents too.
+        If you want these normals to be passed to the output of this filter,
+        set the value of this property to 1.</Documentation>
+      </IntVectorProperty>
+      <!-- End  PolyDataTangents -->
     </SourceProxy>
     <!-- ==================================================================== -->
     <SourceProxy class="vtkPOutlineFilter"
@@ -8842,7 +8918,7 @@ Every Nth Point.
         <IntRangeDomain min="1"
                         name="range" />
         <Documentation>This property indicates the sampling rate in the I
-        dimension. A value grater than 1 results in subsampling; every nth
+        dimension. A value greater than 1 results in subsampling; every nth
         index will be included in the output.</Documentation>
       </IntVectorProperty>
       <IntVectorProperty animateable="1"
@@ -8854,7 +8930,7 @@ Every Nth Point.
         <IntRangeDomain min="1"
                         name="range" />
         <Documentation>This property indicates the sampling rate in the J
-        dimension. A value grater than 1 results in subsampling; every nth
+        dimension. A value greater than 1 results in subsampling; every nth
         index will be included in the output.</Documentation>
       </IntVectorProperty>
       <IntVectorProperty animateable="1"
@@ -8866,7 +8942,7 @@ Every Nth Point.
         <IntRangeDomain min="1"
                         name="range" />
         <Documentation>This property indicates the sampling rate in the K
-        dimension. A value grater than 1 results in subsampling; every nth
+        dimension. A value greater than 1 results in subsampling; every nth
         index will be included in the output.</Documentation>
       </IntVectorProperty>
       <IntVectorProperty command="SetIncludeBoundary"
@@ -9503,13 +9579,13 @@ Every Nth Point.
         <Property name="InitialIntegrationStep" />
         <Property name="MinimumIntegrationStep" />
         <Property name="MaximumIntegrationStep" />
+        <Property name="MaximumError" />
       </PropertyGroup>
 
       <PropertyGroup label="Streamline Parameters" >
         <Property name="MaximumNumberOfSteps" />
         <Property name="MaximumPropagation" />
         <Property name="TerminalSpeed" />
-        <Property name="MaximumError" />
       </PropertyGroup>
 
       <Hints>
@@ -12544,7 +12620,7 @@ Every Nth Point.
       <Hints>
         <Visibility replace_input="0" />
         <!-- View can be used to specify the preferred view for the proxy -->
-        <View type="XYChartView" />
+        <View type="PlotMatrixView" />
         <Plotable />
       </Hints>
       <!-- End ScatterPlot -->
@@ -13163,22 +13239,39 @@ Every Nth Point.
       <!-- End of ConvertSelection -->
     </SourceProxy>
     <!-- ==================================================================== -->
-    <SourceProxy class="vtkCompositeDataToUnstructuredGridFilter"
+    <SourceProxy class="vtkDataObjectTreeToPointSetFilter"
                  label="Merge Blocks"
                  name="MergeBlocks">
-      <Documentation short_help="Appends vtkCompositeDataSet leaves into a single vtkUnstructuredGrid">
-      vtkCompositeDataToUnstructuredGridFilter appends all vtkDataSet leaves of
-      the input composite dataset to a single unstructured grid. The subtree to
-      be combined can be chosen using the SubTreeCompositeIndex. If the
-      SubTreeCompositeIndex is a leaf node, then no appending is
-      required.</Documentation>
+      <Documentation short_help="Appends vtkCompositeDataSet leaves into a single vtkUnstructuredGrid or vtkPolyData">
+      Merge Blocks appends all vtkDataSet leaves of the input composite dataset to a single
+      unstructured grid (or polydata if all leaves are polydata). The subtree to
+      be combined can be chosen using the SubTreeCompositeIndex. If the SubTreeCompositeIndex
+      is a leaf node, then no appending is required nor performed.</Documentation>
       <InputProperty command="SetInputConnection"
                      name="Input">
         <DataTypeDomain name="input_type">
-          <DataType value="vtkCompositeDataSet" />
+          <DataType value="vtkDataObjectTree" />
         </DataTypeDomain>
         <Documentation>Set the input composite dataset.</Documentation>
       </InputProperty>
+      <IntVectorProperty command="SetOutputDataSetType"
+                         default_values="4"
+                         number_of_elements="1"
+                         name="OutputDataSetType"
+                         panel_visibility="advanced">
+        <EnumerationDomain name="enum">
+          <Entry text="Polygonal Mesh"
+                 value="0" />
+          <Entry text="Unstructured Grid"
+                 value="4" />
+        </EnumerationDomain>
+        <Documentation>Determines the output type produced by this filter. Only blocks compatible
+        with the output type will be merged in the output. For example, if the output type is
+        "Polygonal Mesh", then blocks of type "Image Data", "Structured Grid", etc. will not be merged.
+        If the output type is "UnstructuredGrid", then blocks of any type will be merged in the output.
+        Defaults to "Unstructured Grid".
+        </Documentation>
+      </IntVectorProperty>
       <IntVectorProperty command="SetSubTreeCompositeIndex"
                          default_values="0"
                          is_internal="1"
@@ -13200,13 +13293,15 @@ Every Nth Point.
                          name="MergePoints"
                          number_of_elements="1">
         <BooleanDomain name="bool" />
+        <Documentation>Merge points within a distance specified by the **Tolerance**
+        property.</Documentation>
       </IntVectorProperty>
       <DoubleVectorProperty command="SetTolerance"
-                         default_values="0"
-                         label="Tolerance"
-                         name="Tolerance"
-                         number_of_elements="1"
-                         panel_visibility="advanced">
+                            default_values="0"
+                            label="Tolerance"
+                            name="Tolerance"
+                            number_of_elements="1"
+                            panel_visibility="advanced">
         <Documentation>Set the tolerance for merging points if **Merge Points** is enabled.</Documentation>
         <Hints>
           <PropertyWidgetDecorator type="GenericDecorator"
@@ -13216,6 +13311,24 @@ Every Nth Point.
           <!-- show this widget when MergePoints==1 and showing advanced options -->
         </Hints>
       </DoubleVectorProperty>
+      <IntVectorProperty command="SetToleranceIsAbsolute"
+                         default_values="0"
+                         name="ToleranceIsAbsolute"
+                         number_of_elements="1"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>This property determines whether to treat the **Tolerance**
+        property as absolute (points closer than Tolerance are merged) or relative
+        (points closer than a fraction of the input data's bounding box diagonal length)
+        when performing point merging.</Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="MergePoints"
+                                   value="1" />
+          <!-- show this widget when MergePoints==1 and showing advanced options -->
+        </Hints>
+      </IntVectorProperty>
       <!-- End of MergeBlocks -->
     </SourceProxy>
     <!-- ==================================================================== -->
@@ -15584,17 +15697,15 @@ Every Nth Point.
       <!-- End of YoungsMaterialInterface -->
     </SourceProxy>
     <!-- ==================================================================== -->
-    <SourceProxy class="vtkPassArrays"
-                 label="Pass Arrays"
-                 name="PassArrays">
+    <SourceProxy class="vtkPassSelectedArrays" name="PassArrays">
       <Documentation long_help="Pass specified point and cell data arrays."
                      short_help="Pass specified point and cell data arrays.">
                      The Pass Arrays filter makes a shallow copy of the output
                      data object from the input data object except for passing
                      only the arrays specified to the output from the
-                     input.</Documentation>
-      <InputProperty command="SetInputConnection"
-                     name="Input">
+                     input.
+      </Documentation>
+      <InputProperty command="SetInputConnection" name="Input">
         <ProxyGroupDomain name="groups">
           <Group name="sources" />
           <Group name="filters" />
@@ -15602,71 +15713,122 @@ Every Nth Point.
         <DataTypeDomain name="input_type">
           <DataType value="vtkDataObject" />
         </DataTypeDomain>
-        <InputArrayDomain attribute_type="cell"
-                          name="input_array_cell"
-                          optional="1"></InputArrayDomain>
-        <InputArrayDomain attribute_type="point"
-                          name="input_array_point"
-                          optional="1"></InputArrayDomain>
-        <InputArrayDomain name="input_field_array" attribute_type="field" optional="1" />
+        <InputArrayDomain name="point_arrays" attribute_type="point" optional="1" />
+        <InputArrayDomain name="cell_arrays" attribute_type="cell" optional="1" />
+        <InputArrayDomain name="field_arrays" attribute_type="field" optional="1" />
+        <InputArrayDomain name="vertex_arrays" attribute_type="vertex" optional="1" />
+        <InputArrayDomain name="edge_arrays" attribute_type="edge" optional="1" />
+        <InputArrayDomain name="row_arrays" attribute_type="row" optional="1" />
       </InputProperty>
-      <StringVectorProperty clean_command="ClearPointDataArrays"
-                            command="AddPointDataArray"
-                            name="PointDataArrays"
-                            number_of_elements_per_command="1"
-                            repeat_command="1">
-        <Documentation>Add a point array by name to be passed.</Documentation>
-        <ArrayListDomain input_domain_name="input_array_point" name="array_list">
-          <RequiredProperties>
-            <Property function="Input" name="Input" />
-          </RequiredProperties>
-        </ArrayListDomain>
+
+      <StringVectorProperty
+          name="PointDataArrays"
+          command="GetPointDataArraySelection"
+          number_of_elements_per_command="1"
+          repeat_command="1"
+          si_class="vtkSIDataArraySelectionProperty">
+          <ArrayListDomain name="array_list" input_domain_name="point_arrays">
+            <RequiredProperties>
+              <Property name="Input" function="Input" />
+            </RequiredProperties>
+          </ArrayListDomain>
+          <Documentation>
+            Select the point data arrays to pass through
+          </Documentation>
+          <Hints>
+            <ArraySelectionWidget icon_type="point"/>
+          </Hints>
       </StringVectorProperty>
-      <StringVectorProperty clean_command="ClearCellDataArrays"
-                            command="AddCellDataArray"
-                            name="CellDataArrays"
-                            number_of_elements_per_command="1"
-                            repeat_command="1">
-        <Documentation>Add a cell array by name to be passed.</Documentation>
-        <ArrayListDomain input_domain_name="input_array_cell" name="array_list">
-          <RequiredProperties>
-            <Property function="Input" name="Input" />
-          </RequiredProperties>
-        </ArrayListDomain>
+      <StringVectorProperty
+          name="CellDataArrays"
+          command="GetCellDataArraySelection"
+          number_of_elements_per_command="1"
+          repeat_command="1"
+          si_class="vtkSIDataArraySelectionProperty">
+          <ArrayListDomain name="array_list" input_domain_name="cell_arrays">
+            <RequiredProperties>
+              <Property name="Input" function="Input" />
+            </RequiredProperties>
+          </ArrayListDomain>
+          <Documentation>
+            Select the cell data arrays to pass through
+          </Documentation>
+          <Hints>
+            <ArraySelectionWidget icon_type="cell"/>
+          </Hints>
       </StringVectorProperty>
-      <StringVectorProperty clean_command="ClearFieldDataArrays"
-                            command="AddFieldDataArray"
-                            name="FieldDataArrays"
-                            number_of_elements_per_command="1"
-                            repeat_command="1">
-        <Documentation>Add a field array by name to be passed.</Documentation>
-        <ArrayListDomain name="array_list" input_domain_name="input_field_array">
-          <RequiredProperties>
-            <Property function="Input" name="Input" />
-          </RequiredProperties>
-        </ArrayListDomain>
+      <StringVectorProperty
+          name="FieldDataArrays"
+          command="GetFieldDataArraySelection"
+          number_of_elements_per_command="1"
+          repeat_command="1"
+          si_class="vtkSIDataArraySelectionProperty">
+          <ArrayListDomain name="array_list" input_domain_name="field_arrays">
+            <RequiredProperties>
+              <Property name="Input" function="Input" />
+            </RequiredProperties>
+          </ArrayListDomain>
+          <Documentation>
+            Select the field data arrays to pass through
+          </Documentation>
+          <Hints>
+            <ArraySelectionWidget icon_type="field"/>
+          </Hints>
       </StringVectorProperty>
-      <IntVectorProperty command="SetUseFieldTypes"
-                         default_values="1"
-                         name="UseFieldTypes"
-                         number_of_elements="1"
-                         panel_visibility="never">
-        <BooleanDomain name="bool" />
-        <Documentation>This hidden property must always be set to 1 for this
-        proxy to work.</Documentation>
-      </IntVectorProperty>
-      <IntVectorProperty command="AddFieldType"
-                         default_values="0 1 2"
-                         name="SelectedFieldTypes"
-                         number_of_elements="3"
-                         repeat_command="1"
-                         number_of_elements_per_command="1"
-                         panel_visibility="never">
-        <BooleanDomain name="bool" />
-        <Documentation>This hidden property must always be set to 0 for this
-        proxy to work.</Documentation>
-      </IntVectorProperty>
-      <!-- End PassArrays -->
+      <StringVectorProperty
+          name="VertexDataArrays"
+          command="GetVertexDataArraySelection"
+          number_of_elements_per_command="1"
+          repeat_command="1"
+          si_class="vtkSIDataArraySelectionProperty">
+          <ArrayListDomain name="array_list" input_domain_name="vertex_arrays">
+            <RequiredProperties>
+              <Property name="Input" function="Input" />
+            </RequiredProperties>
+          </ArrayListDomain>
+          <Documentation>
+            Select the vertex data arrays to pass through
+          </Documentation>
+          <Hints>
+            <ArraySelectionWidget icon_type="vertex"/>
+          </Hints>
+      </StringVectorProperty>
+      <StringVectorProperty
+          name="EdgeDataArrays"
+          command="GetEdgeDataArraySelection"
+          number_of_elements_per_command="1"
+          repeat_command="1"
+          si_class="vtkSIDataArraySelectionProperty">
+          <ArrayListDomain name="array_list" input_domain_name="edge_arrays">
+            <RequiredProperties>
+              <Property name="Input" function="Input" />
+            </RequiredProperties>
+          </ArrayListDomain>
+          <Documentation>
+            Select the edge data arrays to pass through
+          </Documentation>
+          <Hints>
+            <ArraySelectionWidget icon_type="edge"/>
+          </Hints>
+      </StringVectorProperty>
+      <StringVectorProperty
+          name="RowDataArrays"
+          command="GetRowDataArraySelection"
+          number_of_elements_per_command="1"
+          repeat_command="1"
+          si_class="vtkSIDataArraySelectionProperty">
+          <ArrayListDomain name="array_list" input_domain_name="row_arrays">
+            <RequiredProperties>
+              <Property name="Input" function="Input" />
+            </RequiredProperties>
+          </ArrayListDomain>
+          <Documentation>
+            Select the row data arrays to pass through
+          </Documentation>
+          <Hints>
+            <ArraySelectionWidget icon_type="row"/>
+          </Hints>
+      </StringVectorProperty>
     </SourceProxy>
 
     <SourceProxy class="vtkImageToAMR"

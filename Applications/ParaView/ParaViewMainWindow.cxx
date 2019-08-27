@@ -30,11 +30,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ========================================================================*/
 #include "vtkPVConfig.h"
-#ifdef PARAVIEW_ENABLE_PYTHON
-extern "C" {
-void vtkPVInitializePythonModules();
-}
-#endif
 
 #include "ParaViewMainWindow.h"
 #include "ui_ParaViewMainWindow.h"
@@ -53,13 +48,12 @@ void vtkPVInitializePythonModules();
 #include "pqWelcomeDialog.h"
 #include "vtkCommand.h"
 #include "vtkPVGeneralSettings.h"
-#include "vtkPVPlugin.h"
 #include "vtkProcessModule.h"
 #include "vtkSMSettings.h"
 #include "vtksys/SystemTools.hxx"
 
-#ifndef BUILD_SHARED_LIBS
-#include "pvStaticPluginsInit.h"
+#ifdef PARAVIEW_ENABLE_PYTHON
+#include "pvpythonmodules.h"
 #endif
 
 #ifdef PARAVIEW_USE_QTHELP
@@ -77,7 +71,7 @@ void vtkPVInitializePythonModules();
 #endif
 
 #ifdef PARAVIEW_ENABLE_PYTHON
-#include "pqCatalystExportInspector.h"
+#include "pqExportInspector.h"
 #include "pqPythonDebugLeaksView.h"
 #include "pqPythonShell.h"
 typedef pqPythonDebugLeaksView DebugLeaksViewType;
@@ -116,7 +110,7 @@ ParaViewMainWindow::ParaViewMainWindow()
   }
 
 #ifdef PARAVIEW_ENABLE_PYTHON
-  vtkPVInitializePythonModules();
+  pvpythonmodules_load();
 #endif
 
 #ifdef PARAVIEW_ENABLE_EMBEDDED_DOCUMENTATION
@@ -139,7 +133,7 @@ ParaViewMainWindow::ParaViewMainWindow()
 #endif
 
 #ifdef PARAVIEW_ENABLE_PYTHON
-  pqCatalystExportInspector* catalystInspector = new pqCatalystExportInspector(this);
+  pqExportInspector* catalystInspector = new pqExportInspector(this);
   this->Internals->catalystInspectorDock->setWidget(catalystInspector);
   this->Internals->catalystInspectorDock->hide();
 #else
@@ -382,7 +376,7 @@ void ParaViewMainWindow::updateFontSize()
   }
 
 // Console font size
-#if defined(PARAVIEW_ENABLE_PYTHON)
+#ifdef PARAVIEW_ENABLE_PYTHON
   pqPythonShell* shell = qobject_cast<pqPythonShell*>(this->Internals->pythonShellDock->widget());
   shell->setFontSize(fontSize);
 #endif

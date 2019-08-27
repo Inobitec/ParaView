@@ -24,14 +24,12 @@ PRIVATE_DEPENDS
 OPTIONAL_DEPENDS
   ParaView::nvpipe
   VTK::AcceleratorsVTKm
-  VTK::FiltersOpenTurns
+  VTK::FiltersOpenTURNS
   VTK::ParallelMPI
-  VTK::RenderingOSPRay
+  VTK::RenderingRayTracing
   VTK::vtkm
 
   # These affect the public API.
   ParaView::icet
-  VTK::PythonInterpreter
-  VTK::WrappingPythonCore
 TEST_LABELS
   ParaView
