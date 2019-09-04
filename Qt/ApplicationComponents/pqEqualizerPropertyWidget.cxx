@@ -189,7 +189,7 @@ void pqEqualizerPropertyWidget::Init(vtkSMProxy* proxy, vtkSMPropertyGroup* smgr
       vtkSMIntVectorProperty::SafeDownCast(proxy->GetProperty("SamplingFrequency"));
     auto frequency = sapmlingFreqProp->GetElement(0);
 
-    QString init_points(QString("0,0; %1,0;").arg(frequency / 2));
+    QString init_points(QString("0,1; %1,1;").arg(frequency / 2));
     this->Internals->pointsLE->setText(init_points);
     points = init_points.toStdString();
   }

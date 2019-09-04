@@ -17695,6 +17695,7 @@ Every Nth Point.
 
     <OutputPort index="0" name="Spectrum" />
     <OutputPort index="1" name="Result" />
+    <OutputPort index="2" name="Normalaized Spectrum" />
 
     <Hints>
       <!-- View can be used to specify the preferred view for the proxy -->

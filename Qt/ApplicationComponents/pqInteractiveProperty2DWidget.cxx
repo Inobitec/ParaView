@@ -216,12 +216,13 @@ void pqInteractiveProperty2DWidget::setWidgetVisible(bool val)
 //-----------------------------------------------------------------------------
 void pqInteractiveProperty2DWidget::updateWidgetVisibility()
 {
-  bool visible = this->isSelected() && this->isWidgetVisible() && this->view();
+  bool visible = this->isWidgetVisible() && this->view();
+  bool enabled = this->isSelected() && this->isWidgetVisible() && this->view();
   vtkSMProxy* wdgProxy = this->widgetProxy();
   assert(wdgProxy);
 
-  vtkSMPropertyHelper(wdgProxy, "Visibility", true).Set(visible);
-  vtkSMPropertyHelper(wdgProxy, "Enabled", true).Set(visible);
+  // vtkSMPropertyHelper(wdgProxy, "Visibility", true).Set(visible);
+  vtkSMPropertyHelper(wdgProxy, "Enabled", true).Set(enabled);
   wdgProxy->UpdateVTKObjects();
   this->render();
   emit this->widgetVisibilityUpdated(visible);
