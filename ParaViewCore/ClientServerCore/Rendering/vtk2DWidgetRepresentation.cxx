@@ -14,12 +14,21 @@ vtk2DWidgetRepresentation::vtk2DWidgetRepresentation()
   : vtkDataRepresentation()
   , ContextItem(nullptr)
   , Enabled(false)
+  , View(nullptr)
   , ObserverTag(0)
 {
   this->SetNumberOfInputPorts(0);
 }
 
-vtk2DWidgetRepresentation::~vtk2DWidgetRepresentation() {}
+vtk2DWidgetRepresentation::~vtk2DWidgetRepresentation()
+{
+  if(this->View)
+  {
+    this->View->GetContextView()->GetScene()->RemoveItem(this->ContextItem);
+    this->View = nullptr;
+    this->ContextItem = nullptr;
+  }
+}
 
 bool vtk2DWidgetRepresentation::AddToView(vtkView *view)
 {
@@ -52,14 +61,7 @@ bool vtk2DWidgetRepresentation::AddToView(vtkView *view)
 
 bool vtk2DWidgetRepresentation::RemoveFromView(vtkView *view)
 {
-  vtkPVContextView* pvview = vtkPVContextView::SafeDownCast(view);
-  if(pvview)
-  {
-    this->View = nullptr;
-    return true;
-  }
-
-  return false;
+  return true;
 }
 
 void vtk2DWidgetRepresentation::OnContextItemModified()

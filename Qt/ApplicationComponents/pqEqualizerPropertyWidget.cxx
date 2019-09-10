@@ -33,7 +33,7 @@ public:
   QCheckBox* visibilityCB;
   QPushButton* savePB;
   QPushButton* loadPB;
-  vtkEqualizerContextItem* EqualizerItem;
+  vtkWeakPointer<vtkEqualizerContextItem> EqualizerItem;
 };
 
 pqEqualizerPropertyWidget::pqEqualizerPropertyWidget(
