@@ -70,7 +70,7 @@ pqInteractiveProperty2DWidget::pqInteractiveProperty2DWidget(const char* widget_
     vtkSMNew2DWidgetRepresentationProxy::SafeDownCast(aProxy);
   if (aProxy == NULL)
   {
-    qCritical("Failed to create proxy for 3D Widget. Aborting for debugging purposes.");
+    qCritical("Failed to create proxy for 2D Widget. Aborting for debugging purposes.");
     abort();
   }
   if (wdgProxy == NULL)

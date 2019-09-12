@@ -52,7 +52,10 @@ bool vtk2DWidgetRepresentation::AddToView(vtkView *view)
         break;
       }
     }
+
+    scene->RemoveItem(this->ContextItem);
     scene->AddItem(this->ContextItem);
+
     return true;
   }
 

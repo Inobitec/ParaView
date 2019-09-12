@@ -62,7 +62,7 @@ void pqEqualizerPropertyWidget::onStartInteraction()
 
 void pqEqualizerPropertyWidget::onInteraction()
 {
-  // UpdatePosition();
+  UpdatePosition();
 }
 
 void pqEqualizerPropertyWidget::onEndInteraction()
