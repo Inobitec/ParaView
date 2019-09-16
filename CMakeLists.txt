@@ -635,7 +635,6 @@ set(paraview_default_plugins
   GLTFReader
   GMVReader
   LagrangianParticleTracker
-  LandmarkTransform
   Moments
   MooseXfemClip
   NetCDFTimeAnnotationPlugin
