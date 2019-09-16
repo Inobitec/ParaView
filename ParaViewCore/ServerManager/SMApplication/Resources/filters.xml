@@ -17653,6 +17653,11 @@ Every Nth Point.
         <Documentation>
           Specify the name of a scalar array which will be used to FFT.
         </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="ShowWidgetDecorator">
+            <Property name="AllColumns" function="boolean_invert" />
+          </PropertyWidgetDecorator>
+        </Hints>
     </StringVectorProperty>
 
     <IntVectorProperty command="SetAllColumns"

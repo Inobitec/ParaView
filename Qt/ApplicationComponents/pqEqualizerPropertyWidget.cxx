@@ -23,8 +23,8 @@
 
 #include <QCheckBox>
 #include <QFileDialog>
+#include <QGridLayout>
 #include <QPushButton>
-#include <QVBoxLayout>
 
 class pqEqualizerPropertyWidget::pqInternals
 {
@@ -33,6 +33,7 @@ public:
   QCheckBox* visibilityCB;
   QPushButton* savePB;
   QPushButton* loadPB;
+  QPushButton* resetPB;
   vtkWeakPointer<vtkEqualizerContextItem> EqualizerItem;
 };
 
@@ -85,9 +86,10 @@ void pqEqualizerPropertyWidget::saveEqualizer()
     {
       QTextStream stream(&file);
       // stream << value1 << "\t" << value2 << "\n"; // this writes first line with two columns
-      QString points = QString::fromStdString(this->Internals->EqualizerItem->GetPoints()); // or this->Internals->pointsLE->text();
+      QString points = QString::fromStdString(
+        this->Internals->EqualizerItem->GetPoints()); // or this->Internals->pointsLE->text();
       QStringList pointsList = points.split(';');
-      for(const QString& point: pointsList)
+      for (const QString& point : pointsList)
         stream << point << "\n";
     }
     file.close();
@@ -125,7 +127,28 @@ void pqEqualizerPropertyWidget::loadEqualizer()
     this->Internals->EqualizerItem->SetPoints(points.toStdString());
     this->proxy()->UpdateVTKObjects();
     this->proxy()->Modified();
+    emit changeAvailable();
   }
+}
+
+void pqEqualizerPropertyWidget::resetEqualizer()
+{
+  if (!this->Internals->pointsLE)
+    return;
+
+  if (!this->Internals->EqualizerItem)
+    return;
+
+  vtkSMIntVectorProperty* sapmlingFreqProp =
+    vtkSMIntVectorProperty::SafeDownCast(this->proxy()->GetProperty("SamplingFrequency"));
+
+  auto frequency = sapmlingFreqProp ? sapmlingFreqProp->GetElement(0) : 1000;
+
+  QString init_points(QString("0,1; %1,1;").arg(frequency / 2));
+  this->Internals->pointsLE->setText(init_points);
+  auto points = init_points.toStdString();
+  this->Internals->EqualizerItem->SetPoints(points);
+  emit changeAvailable();
 }
 
 void pqEqualizerPropertyWidget::Init(vtkSMProxy* proxy, vtkSMPropertyGroup* smgroup)
@@ -138,27 +161,35 @@ void pqEqualizerPropertyWidget::Init(vtkSMProxy* proxy, vtkSMPropertyGroup* smgr
 
   vtkSMNew2DWidgetRepresentationProxy* wdgProxy = this->widgetProxy();
 
-  QVBoxLayout* layout = new QVBoxLayout(this);
+  QGridLayout* layout = new QGridLayout(this);
   layout->setMargin(pqPropertiesPanel::suggestedMargin());
+  layout->setVerticalSpacing(pqPropertiesPanel::suggestedVerticalSpacing());
+  layout->setHorizontalSpacing(pqPropertiesPanel::suggestedHorizontalSpacing());
+  auto rowId = 0;
 
   QCheckBox* visibility = new QCheckBox(tr("Visibility"), this);
   layout->addWidget(visibility);
+  ++rowId;
 
   this->WidgetLinks.addPropertyLink(
     visibility, "checked", SIGNAL(toggled(bool)), wdgProxy, wdgProxy->GetProperty("Visibility"));
 
   this->Internals->savePB = new QPushButton(tr("Save"), this);
   this->Internals->loadPB = new QPushButton(tr("Load"), this);
-  layout->addWidget(this->Internals->savePB);
-  layout->addWidget(this->Internals->loadPB);
+  this->Internals->resetPB = new QPushButton(tr("Reset"), this);
+  layout->addWidget(this->Internals->savePB, rowId, 0);
+  layout->addWidget(this->Internals->loadPB, rowId, 1);
+  layout->addWidget(this->Internals->resetPB, rowId, 2);
   connect(this->Internals->savePB, &QPushButton::clicked, this,
     &pqEqualizerPropertyWidget::saveEqualizer);
   connect(this->Internals->loadPB, &QPushButton::clicked, this,
     &pqEqualizerPropertyWidget::loadEqualizer);
+  connect(this->Internals->resetPB, &QPushButton::clicked, this,
+    &pqEqualizerPropertyWidget::resetEqualizer);
 
   this->Internals->pointsLE = new pqLineEdit(this);
   this->Internals->pointsLE->setEnabled(false);
-  layout->addWidget(this->Internals->pointsLE);
+  layout->addWidget(this->Internals->pointsLE, ++rowId, 0, 1, 3);
 
   vtkPVDataSetAttributesInformation* fdi = input->GetDataInformation(0)->GetRowDataInformation();
   if (!fdi)
@@ -186,9 +217,9 @@ void pqEqualizerPropertyWidget::Init(vtkSMProxy* proxy, vtkSMPropertyGroup* smgr
   if (points.empty())
   {
     vtkSMIntVectorProperty* sapmlingFreqProp =
-      vtkSMIntVectorProperty::SafeDownCast(proxy->GetProperty("SamplingFrequency"));
-    auto frequency = sapmlingFreqProp->GetElement(0);
+      vtkSMIntVectorProperty::SafeDownCast(this->proxy()->GetProperty("SamplingFrequency"));
 
+    auto frequency = sapmlingFreqProp ? sapmlingFreqProp->GetElement(0) : 1000;
     QString init_points(QString("0,1; %1,1;").arg(frequency / 2));
     this->Internals->pointsLE->setText(init_points);
     points = init_points.toStdString();

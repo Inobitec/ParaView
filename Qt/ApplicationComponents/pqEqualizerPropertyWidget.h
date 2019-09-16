@@ -32,6 +32,7 @@ protected slots:
 private slots:
   void saveEqualizer();
   void loadEqualizer();
+  void resetEqualizer();
 
 private:
   void Init(vtkSMProxy* proxy, vtkSMPropertyGroup* smgroup);
