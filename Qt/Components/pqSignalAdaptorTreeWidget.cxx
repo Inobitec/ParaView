@@ -196,11 +196,7 @@ void pqSignalAdaptorTreeWidget::updateSortingLinks()
   {
     QObject::connect(
       this->TreeWidget->header(), SIGNAL(sectionClicked(int)), this, SLOT(sort(int)));
-#if QT_VERSION >= 0x050000
     this->TreeWidget->header()->setSectionsClickable(true);
-#else
-    this->TreeWidget->header()->setClickable(true);
-#endif
   }
   else
   {
@@ -214,7 +210,7 @@ void pqSignalAdaptorTreeWidget::sort(int column)
   if (!this->TreeWidget->isSortingEnabled())
   {
     this->TreeWidget->setSortingEnabled(this->Sortable);
-    this->TreeWidget->sortByColumn(column);
+    this->TreeWidget->sortByColumn(column, Qt::AscendingOrder);
   }
 }
 

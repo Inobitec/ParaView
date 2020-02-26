@@ -35,6 +35,7 @@ set(classes
   pqAnimationShortcutDecorator
   pqAnimationShortcutWidget
   pqAnimationTimeToolbar
+  pqAnnotationsModel
   pqApplicationComponentsInit
   pqApplicationSettingsReaction
   pqApplyBehavior
@@ -55,7 +56,6 @@ set(classes
   pqCatalystExportReaction
   pqCatalystPauseSimulationReaction
   pqCatalystRemoveBreakpointReaction
-  pqCatalystScriptGeneratorReaction
   pqCatalystSetBreakpointReaction
   pqCategoryToolbarsBehavior
   pqChangePipelineInputReaction
@@ -63,6 +63,7 @@ set(classes
   pqChooseColorPresetReaction
   pqCollaborationBehavior
   pqColorAnnotationsPropertyWidget
+  pqColorAnnotationsWidget
   pqColorEditorPropertyWidget
   pqColorMapEditor
   pqColorOpacityEditorWidget
@@ -129,9 +130,10 @@ set(classes
   pqModelTransformSupportBehavior
   pqMoleculePropertyWidget
   pqMultiComponentsDecorator
-  pqOSPRayHidingDecorator
   pqObjectPickingBehavior
+  pqOMETransferFunctionsPropertyWidget
   pqOpacityTableModel
+  pqOSPRayHidingDecorator
   pqPVAnimationWidget
   pqPVApplicationCore
   pqParaViewBehaviors
@@ -145,7 +147,7 @@ set(classes
   pqPluginToolBarBehavior
   pqPointPickingHelper
   pqPreviewMenuManager
-  pqPropertyGroupButton
+  pqPropertyCollectionWidget
   pqProxyGroupMenuManager
   pqReaction
   pqReloadFilesReaction
@@ -222,7 +224,7 @@ set(ui_files
   Resources/UI/pqCameraManipulatorWidget.ui
   Resources/UI/pqCameraToolbar.ui
   Resources/UI/pqExportInspector.ui
-  Resources/UI/pqColorAnnotationsPropertyWidget.ui
+  Resources/UI/pqColorAnnotationsWidget.ui
   Resources/UI/pqColorEditorPropertyWidget.ui
   Resources/UI/pqColorMapEditor.ui
   Resources/UI/pqColorOpacityEditorWidget.ui
@@ -244,6 +246,9 @@ set(ui_files
   Resources/UI/pqLinePropertyWidget.ui
   Resources/UI/pqMainControlsToolbar.ui
   Resources/UI/pqMoleculePropertyWidget.ui
+  Resources/UI/pqOMETransferFunctionsPropertyWidget.ui
+  Resources/UI/pqOMETransferFunctionsPropertyWidgetPage.ui
+  Resources/UI/pqPropertyCollectionWidget.ui
   Resources/UI/pqResetScalarRangeToDataOverTime.ui
   Resources/UI/pqSavePresetOptions.ui
   Resources/UI/pqSeriesEditorPropertyWidget.ui
@@ -262,7 +267,8 @@ set(resource_files
   Resources/pqApplicationComponents.qrc)
 
 set(qt_components
-  Widgets)
+  Widgets
+  Svg)
 
 if (PARAVIEW_USE_QTHELP)
   list(APPEND qt_components
@@ -295,7 +301,8 @@ vtk_module_add_module(ParaView::pqApplicationComponents
           ${resource_files})
 vtk_module_link(ParaView::pqApplicationComponents
   PRIVATE
-    Qt5::Widgets)
+    Qt5::Widgets
+    Qt5::Svg)
 if (PARAVIEW_USE_QTHELP)
   vtk_module_link(ParaView::pqApplicationComponents
     PRIVATE

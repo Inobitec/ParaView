@@ -67,9 +67,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pqListPropertyWidget.h"
 #include "pqMoleculePropertyWidget.h"
 #include "pqMultiComponentsDecorator.h"
+#include "pqOMETransferFunctionsPropertyWidget.h"
 #include "pqOSPRayHidingDecorator.h"
 #include "pqPauseLiveSourcePropertyWidget.h"
-#include "pqPropertyGroupButton.h"
+#include "pqPropertyCollectionWidget.h"
 #include "pqProxyEditorPropertyWidget.h"
 #include "pqSeriesEditorPropertyWidget.h"
 #include "pqShaderReplacementsSelectorPropertyWidget.h"
@@ -84,10 +85,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pqYoungsMaterialPropertyWidget.h"
 #include "vtkSMProperty.h"
 #include "vtkSMPropertyGroup.h"
-
-#if VTK_MODULE_ENABLE_ParaView_pqPython
-#include "pqCinemaConfiguration.h"
-#endif
 
 #include <QtDebug>
 
@@ -228,7 +225,11 @@ pqPropertyWidget* pqStandardPropertyWidgetInterface::createWidgetForPropertyGrou
   }
   else if (panelWidget == "BackgroundEditor")
   {
-    return new pqBackgroundEditorWidget(proxy, group, parentWidget);
+    return new pqBackgroundEditorWidget(proxy, group, parentWidget, false);
+  }
+  else if (panelWidget == "EnvironmentalBGEditor")
+  {
+    return new pqBackgroundEditorWidget(proxy, group, parentWidget, true);
   }
   else if (panelWidget == "ArrayStatus")
   {
@@ -298,13 +299,13 @@ pqPropertyWidget* pqStandardPropertyWidgetInterface::createWidgetForPropertyGrou
   {
     return new pqLightPropertyWidget(proxy, group, parentWidget);
   }
-  else if (panelWidget == "cinema_export_selector")
+  else if (panelWidget == "OMETransferFunctions")
   {
-#if VTK_MODULE_ENABLE_ParaView_pqPython
-    return new pqCinemaConfiguration(proxy, group, parentWidget);
-#else
-    return NULL;
-#endif
+    return new pqOMETransferFunctionsPropertyWidget(proxy, group, parentWidget);
+  }
+  else if (panelWidget == "PropertyCollection")
+  {
+    return new pqPropertyCollectionWidget(proxy, group, parentWidget);
   }
   // *** NOTE: When adding new types, please update the header documentation ***
 

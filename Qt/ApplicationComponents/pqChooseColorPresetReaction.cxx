@@ -40,8 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSMPropertyHelper.h"
 #include "vtkSMTransferFunctionProxy.h"
 
-// This is required to get the mangled name for `Json::Value` used below.
-#include "vtk_jsoncpp_fwd.h"
+#include "vtk_jsoncpp.h"
 
 #include <cassert>
 
@@ -55,7 +54,7 @@ vtkSMProxy* lutProxy(vtkSMProxy* reprProxy)
   {
     return vtkSMPropertyHelper(reprProxy, "LookupTable", true).GetAsProxy();
   }
-  return NULL;
+  return nullptr;
 }
 }
 
@@ -63,6 +62,7 @@ vtkSMProxy* lutProxy(vtkSMProxy* reprProxy)
 pqChooseColorPresetReaction::pqChooseColorPresetReaction(
   QAction* parentObject, bool track_active_objects)
   : Superclass(parentObject)
+  , AllowsRegexpMatching(false)
 {
   if (track_active_objects)
   {
@@ -102,7 +102,7 @@ void pqChooseColorPresetReaction::setRepresentation(pqDataRepresentation* repr)
 void pqChooseColorPresetReaction::updateTransferFunction()
 {
   this->setTransferFunction(
-    this->Representation ? this->Representation->getLookupTableProxy() : NULL);
+    this->Representation ? this->Representation->getLookupTableProxy() : nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -115,7 +115,7 @@ void pqChooseColorPresetReaction::setTransferFunction(vtkSMProxy* lut)
 //-----------------------------------------------------------------------------
 void pqChooseColorPresetReaction::updateEnableState()
 {
-  this->parentAction()->setEnabled(this->TransferFunctionProxy != NULL);
+  this->parentAction()->setEnabled(this->TransferFunctionProxy != nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -155,15 +155,9 @@ bool pqChooseColorPresetReaction::choosePreset(const char* presetName)
   PresetDialog->setCustomizableLoadOpacities(!indexedLookup);
   PresetDialog->setCustomizableUsePresetRange(!indexedLookup);
   PresetDialog->setCustomizableLoadAnnotations(indexedLookup);
-// XXX(Qt): For some reason, on Windows, this signal is not hooked up
-// properly because the name is never mangled. Instead, just handle the
-// mangling here manually.
-#if VTK_MODULE_USE_EXTERNAL_vtkjsoncpp
-  this->connect(PresetDialog, SIGNAL(applyPreset(const Json::Value&)), SLOT(applyCurrentPreset()));
-#else
-  this->connect(
-    PresetDialog, SIGNAL(applyPreset(const vtkJson::Value&)), SLOT(applyCurrentPreset()));
-#endif
+  PresetDialog->setCustomizableAnnotationsRegexp(indexedLookup && this->AllowsRegexpMatching);
+  this->connect(PresetDialog.data(), &pqPresetDialog::applyPreset, this,
+    &pqChooseColorPresetReaction::applyCurrentPreset);
   PresetDialog->show();
   return true;
 }
@@ -225,5 +219,13 @@ void pqChooseColorPresetReaction::applyCurrentPreset()
       lut, dialog->currentPreset(), !dialog->loadAnnotations());
   }
   END_UNDO_SET();
-  emit this->presetApplied();
+
+  emit this->presetApplied(
+    QString(dialog->currentPreset().get("Name", "Preset").asString().c_str()));
+}
+
+//-----------------------------------------------------------------------------
+QRegularExpression pqChooseColorPresetReaction::regularExpression()
+{
+  return this->PresetDialog ? this->PresetDialog->regularExpression() : QRegularExpression();
 }

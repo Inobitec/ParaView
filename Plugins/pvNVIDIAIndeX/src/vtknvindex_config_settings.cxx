@@ -1,4 +1,4 @@
-/* Copyright 2019 NVIDIA Corporation. All rights reserved.
+/* Copyright 2020 NVIDIA Corporation. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions
@@ -32,6 +32,8 @@
 
 #include "vtkSetGet.h"
 #include "vtkXMLDataSetWriter.h"
+
+#include "vtksys/FStream.hxx"
 
 #include "vtknvindex_config_settings.h"
 #include "vtknvindex_forwarding_logger.h"
@@ -262,7 +264,7 @@ bool vtknvindex_xml_config_parser::get_temp_path(std::string& temp_path)
 //-------------------------------------------------------------------------------------------------
 bool vtknvindex_xml_config_parser::create_config_file(const std::string& filename) const
 {
-  std::ofstream xml_file;
+  vtksys::ofstream xml_file;
   xml_file.open(filename.c_str());
   if (xml_file.is_open())
   {

@@ -1,4 +1,4 @@
-/* Copyright 2019 NVIDIA Corporation. All rights reserved.
+/* Copyright 2020 NVIDIA Corporation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -27,6 +27,7 @@
 
 #include <cassert>
 
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemInformation.hxx"
 #include "vtksys/SystemTools.hxx"
 
@@ -65,14 +66,14 @@
 //-------------------------------------------------------------------------------------------------
 bool file_to_string(const std::string& file_path, std::string& out_file_string)
 {
-  std::ifstream src_file;
+  vtksys::ifstream src_file;
 
   src_file.open(file_path.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
 
   if (!src_file.is_open())
     return false;
 
-  const std::ifstream::pos_type src_file_size = src_file.tellg();
+  const vtksys::ifstream::pos_type src_file_size = src_file.tellg();
   src_file.seekg(std::ios::beg);
 
   out_file_string.resize(src_file_size, '\0');
@@ -495,6 +496,14 @@ void vtknvindex_scene::create_scene(vtkRenderer* ren, vtkVolume* vol,
             break;
           }
 
+          case RTC_KERNELS_CUSTOM:
+          {
+            vtknvindex_custom_params custom_params;
+            rtc_program_parameters->set_buffer_data(
+              0, reinterpret_cast<void*>(&custom_params), sizeof(custom_params));
+            break;
+          }
+
           default:
             rtc_program->set_enabled(false);
             rtc_program_parameters->set_enabled(false);
@@ -535,6 +544,14 @@ void vtknvindex_scene::create_scene(vtkRenderer* ren, vtkVolume* vol,
             break;
           }
 
+          case RTC_KERNELS_CUSTOM:
+          {
+            vtknvindex_ivol_custom_params custom_params;
+            rtc_program_parameters->set_buffer_data(
+              0, reinterpret_cast<void*>(&custom_params), sizeof(custom_params));
+            break;
+          }
+
           default:
             rtc_program->set_enabled(false);
             rtc_program_parameters->set_enabled(false);
@@ -559,20 +576,16 @@ void vtknvindex_scene::create_scene(vtkRenderer* ren, vtkVolume* vol,
           scene->create_attribute<nv::index::IIrregular_volume_rendering_properties>());
         assert(vol_render_properties.is_valid_interface());
 
-        nv::index::IIrregular_volume_rendering_properties::Rendering render_properties;
-        vol_render_properties->get_rendering(render_properties);
+        vol_render_properties->set_sampling_mode(
+          (m_volume_rtc_kernel.rtc_kernel == RTC_KERNELS_NONE) ? 0 : 1);
 
-        render_properties.sampling_mode =
-          (m_volume_rtc_kernel.rtc_kernel == RTC_KERNELS_NONE) ? 0 : 1;
-
-        render_properties.sampling_segment_length =
+        vol_render_properties->set_sampling_segment_length(
           m_cluster_properties->get_config_settings()->get_ivol_step_size() *
-          m_cluster_properties->get_config_settings()->get_step_size();
+          m_cluster_properties->get_config_settings()->get_step_size());
 
-        render_properties.sampling_reference_segment_length = calculate_volume_reference_step_size(
-          vol, pv_config_settings->get_opacity_mode(), pv_config_settings->get_opacity_reference());
-
-        vol_render_properties->set_rendering(render_properties);
+        vol_render_properties->set_sampling_reference_segment_length(
+          calculate_volume_reference_step_size(vol, pv_config_settings->get_opacity_mode(),
+            pv_config_settings->get_opacity_reference()));
 
         m_vol_properties_tag =
           dice_transaction->store_for_reference_counting(vol_render_properties.get());
@@ -1003,23 +1016,23 @@ void vtknvindex_scene::update_rtc_kernel(
       switch (rtc_param_buffer.rtc_kernel)
       {
         case RTC_KERNELS_ISOSURFACE:
-          rtc_program->set_program_source(KERNEL_ISOSURFACE_STRING);
-          rtc_program->set_enabled(true);
-          break;
-
         case RTC_KERNELS_DEPTH_ENHANCEMENT:
-          rtc_program->set_program_source(KERNEL_DEPTH_ENHANCEMENT_STRING);
-          rtc_program->set_enabled(true);
-          break;
-
         case RTC_KERNELS_EDGE_ENHANCEMENT:
-          rtc_program->set_program_source(KERNEL_EDGE_ENHANCEMENT_STRING);
+        case RTC_KERNELS_GRADIENT:
+          rtc_program->set_program_source(rtc_param_buffer.kernel_program.c_str());
           rtc_program->set_enabled(true);
           break;
-
-        case RTC_KERNELS_GRADIENT:
-          rtc_program->set_program_source(KERNEL_GRADIENT_STRING);
-          rtc_program->set_enabled(true);
+        case RTC_KERNELS_CUSTOM:
+          // use default program in case the custom kernel doesn't exist yet.
+          if (rtc_param_buffer.kernel_program == "")
+          {
+            rtc_program->set_enabled(false);
+          }
+          else
+          {
+            rtc_program->set_program_source(rtc_param_buffer.kernel_program.c_str());
+            rtc_program->set_enabled(true);
+          }
           break;
 
         case RTC_KERNELS_NONE:
@@ -1033,18 +1046,21 @@ void vtknvindex_scene::update_rtc_kernel(
       switch (rtc_param_buffer.rtc_kernel)
       {
         case RTC_KERNELS_ISOSURFACE:
-          rtc_program->set_program_source(KERNEL_IRREGULAR_ISOSURFACE_STRING);
-          rtc_program->set_enabled(true);
-          break;
-
         case RTC_KERNELS_DEPTH_ENHANCEMENT:
-          rtc_program->set_program_source(KERNEL_IRREGULAR_DEPTH_ENHANCEMENT_STRING);
-          rtc_program->set_enabled(true);
-          break;
-
         case RTC_KERNELS_EDGE_ENHANCEMENT:
-          rtc_program->set_program_source(KERNEL_IRREGULAR_EDGE_ENHANCEMENT_STRING);
+          rtc_program->set_program_source(rtc_param_buffer.kernel_program.c_str());
           rtc_program->set_enabled(true);
+        case RTC_KERNELS_CUSTOM:
+          // use default program in case the custom kernel doesn't exist yet.
+          if (rtc_param_buffer.kernel_program == "")
+          {
+            rtc_program->set_enabled(false);
+          }
+          else
+          {
+            rtc_program->set_program_source(rtc_param_buffer.kernel_program.c_str());
+            rtc_program->set_enabled(true);
+          }
           break;
 
         case RTC_KERNELS_NONE:
@@ -1111,6 +1127,16 @@ void vtknvindex_scene::update_rtc_kernel(
         }
         break;
 
+        case RTC_KERNELS_CUSTOM:
+        {
+          vtknvindex_ivol_custom_params custom_params = *(
+            reinterpret_cast<const vtknvindex_ivol_custom_params*>(rtc_param_buffer.params_buffer));
+
+          rtc_program_parameters->set_buffer_data(0, &custom_params, rtc_param_buffer.buffer_size);
+          rtc_program_parameters->set_enabled(true);
+        }
+        break;
+
         case RTC_KERNELS_NONE:
         default:
           rtc_program_parameters->set_buffer_data(
@@ -1133,12 +1159,8 @@ void vtknvindex_scene::update_rtc_kernel(
         m_vol_properties_tag));
     assert(vol_render_properties.is_valid_interface());
 
-    nv::index::IIrregular_volume_rendering_properties::Rendering render_properties;
-    vol_render_properties->get_rendering(render_properties);
-
-    render_properties.sampling_mode = (rtc_param_buffer.rtc_kernel == RTC_KERNELS_NONE) ? 0 : 1;
-
-    vol_render_properties->set_rendering(render_properties);
+    vol_render_properties->set_sampling_mode(
+      (rtc_param_buffer.rtc_kernel == RTC_KERNELS_NONE) ? 0 : 1);
   }
 }
 
@@ -1421,17 +1443,13 @@ void vtknvindex_scene::update_volume_opacity(
         m_vol_properties_tag));
     assert(vol_render_properties.is_valid_interface());
 
-    nv::index::IIrregular_volume_rendering_properties::Rendering render_properties;
-    vol_render_properties->get_rendering(render_properties);
-
-    render_properties.sampling_segment_length =
+    vol_render_properties->set_sampling_segment_length(
       m_cluster_properties->get_config_settings()->get_ivol_step_size() *
-      m_cluster_properties->get_config_settings()->get_step_size();
+      m_cluster_properties->get_config_settings()->get_step_size());
 
-    render_properties.sampling_reference_segment_length = calculate_volume_reference_step_size(
-      vol, pv_config_settings->get_opacity_mode(), pv_config_settings->get_opacity_reference());
-
-    vol_render_properties->set_rendering(render_properties);
+    vol_render_properties->set_sampling_reference_segment_length(
+      calculate_volume_reference_step_size(
+        vol, pv_config_settings->get_opacity_mode(), pv_config_settings->get_opacity_reference()));
   }
 }
 
@@ -1529,7 +1547,7 @@ void vtknvindex_scene::export_session()
       INFO_LOG << "Writing export session to file '"
                << vtksys::SystemTools::JoinPath(path_components) << "'";
 
-      std::ofstream f(output_filename.c_str());
+      vtksys::ofstream f(output_filename.c_str());
       f << s.str();
       std::ostringstream af;
       m_cluster_properties->get_affinity()->scene_dump_affinity_info(af);

@@ -316,7 +316,7 @@ pqFileDialog::pqFileDialog(pqServer* server, QWidget* p, const QString& title,
   impl.Ui.CreateFolder->setIcon(style()->standardPixmap(QStyle::SP_FileDialogNewFolder));
   impl.Ui.CreateFolder->setDisabled(true);
 
-  impl.Ui.ShowDetail->setIcon(QIcon(":/pqWidgets/Icons/pqAdvanced26.png"));
+  impl.Ui.ShowDetail->setIcon(QIcon(":/pqWidgets/Icons/pqAdvanced.svg"));
 
   impl.Ui.Files->setModel(&impl.FileFilter);
   impl.Ui.Files->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -396,10 +396,17 @@ pqFileDialog::pqFileDialog(pqServer* server, QWidget* p, const QString& title,
   // This code is similar to QFileDialog code
   // It positions different columns and orders in a standard way
   QFontMetrics fm(this->font());
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+  header->resizeSection(0, fm.horizontalAdvance(QLatin1String("wwwwwwwwwwwwwwwwwwwwwwwwww")));
+  header->resizeSection(1, fm.horizontalAdvance(QLatin1String("mp3Folder")));
+  header->resizeSection(2, fm.horizontalAdvance(QLatin1String("128.88 GB")));
+  header->resizeSection(3, fm.horizontalAdvance(QLatin1String("10/29/81 02:02PM")));
+#else
   header->resizeSection(0, fm.width(QLatin1String("wwwwwwwwwwwwwwwwwwwwwwwwww")));
   header->resizeSection(1, fm.width(QLatin1String("mp3Folder")));
   header->resizeSection(2, fm.width(QLatin1String("128.88 GB")));
   header->resizeSection(3, fm.width(QLatin1String("10/29/81 02:02PM")));
+#endif
   impl.Ui.Files->setSortingEnabled(true);
   impl.Ui.Files->header()->setSortIndicator(0, Qt::AscendingOrder);
 
@@ -854,7 +861,7 @@ void pqFileDialog::onFilterChange(const QString& filter)
   impl.FileFilter.setFilter(filter);
 
   // update view
-  impl.FileFilter.clear();
+  impl.FileFilter.invalidate();
 }
 
 //-----------------------------------------------------------------------------
