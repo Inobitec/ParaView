@@ -50,9 +50,7 @@ pqResetDefaultSettingsReaction::pqResetDefaultSettingsReaction(QAction* parentOb
 }
 
 //-----------------------------------------------------------------------------
-pqResetDefaultSettingsReaction::~pqResetDefaultSettingsReaction()
-{
-}
+pqResetDefaultSettingsReaction::~pqResetDefaultSettingsReaction() {}
 
 //-----------------------------------------------------------------------------
 void pqResetDefaultSettingsReaction::resetSettingsToDefault()
@@ -166,5 +164,8 @@ void pqResetDefaultSettingsReaction::clearSettings()
   if (vtkInitializationHelper::GetLoadSettingsFilesDuringInitialization())
   {
     QFile::remove(vtkInitializationHelper::GetUserSettingsFilePath().c_str());
+    QFile empty_file(vtkInitializationHelper::GetUserSettingsFilePath().c_str());
+    empty_file.open(QIODevice::WriteOnly);
+    empty_file.close();
   }
 }
