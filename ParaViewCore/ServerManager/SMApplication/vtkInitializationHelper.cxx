@@ -320,7 +320,11 @@ void vtkInitializationHelper::LoadSettings()
   }
 
   // Load user-level settings
+  // TODO: add compile option PORTABLE
   std::string userSettingsFilePath = vtkInitializationHelper::GetUserSettingsFilePath();
+  if (!vtksys::SystemTools::FileExists(userSettingsFilePath))
+    userSettingsFilePath = vtkInitializationHelper::GetUserSettingsFilePath(false);
+
   if (!settings->AddCollectionFromFile(userSettingsFilePath, VTK_DOUBLE_MAX))
   {
     // Loading user settings failed, so we need to create an empty
@@ -380,11 +384,9 @@ void vtkInitializationHelper::LoadSettings()
 }
 
 //----------------------------------------------------------------------------
-std::string vtkInitializationHelper::GetUserSettingsDirectory()
+std::string vtkInitializationHelper::GetUserSettingsDirectory(bool portable)
 {
-  // TODO: add compile option PORTABLE
-  bool PORTABLE = true;
-  if (PORTABLE)
+  if (portable)
   {
     vtkPVOptions* options = vtkProcessModule::GetProcessModule()->GetOptions();
     const char* app_dir_p = options->GetApplicationPath();
@@ -445,9 +447,9 @@ std::string vtkInitializationHelper::GetUserSettingsDirectory()
 }
 
 //----------------------------------------------------------------------------
-std::string vtkInitializationHelper::GetUserSettingsFilePath()
+std::string vtkInitializationHelper::GetUserSettingsFilePath(bool portable)
 {
-  std::string path = vtkInitializationHelper::GetUserSettingsDirectory();
+  std::string path = vtkInitializationHelper::GetUserSettingsDirectory(portable);
   path.append(vtkInitializationHelper::GetApplicationName());
   path.append("-UserSettings.json");
 

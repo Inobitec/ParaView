@@ -20,7 +20,7 @@
  * This class is used by the python modules when they are loaded from
  * python (as opposed to pvpython). It simply initializes the server
  * manager so that it can be used.
-*/
+ */
 
 #ifndef vtkInitializationHelper_h
 #define vtkInitializationHelper_h
@@ -110,12 +110,12 @@ public:
    * Get directory for user settings file. The last character is always the
    * file path separator appropriate for the system.
    */
-  static std::string GetUserSettingsDirectory();
+  static std::string GetUserSettingsDirectory(bool portable = true);
 
   /**
    * Get file path for the user settings file.
    */
-  static std::string GetUserSettingsFilePath();
+  static std::string GetUserSettingsFilePath(bool portable = true);
 
 protected:
   vtkInitializationHelper(){};
