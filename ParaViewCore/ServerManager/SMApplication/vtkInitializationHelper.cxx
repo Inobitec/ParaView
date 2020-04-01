@@ -382,52 +382,66 @@ void vtkInitializationHelper::LoadSettings()
 //----------------------------------------------------------------------------
 std::string vtkInitializationHelper::GetUserSettingsDirectory()
 {
-  std::string organizationName(vtkInitializationHelper::GetOrganizationName());
-  std::string applicationName(vtkInitializationHelper::GetApplicationName());
-#if defined(_WIN32)
-  const char* appData = vtksys::SystemTools::GetEnv("APPDATA");
-  if (!appData)
+  // TODO: add compile option PORTABLE
+  bool PORTABLE = true;
+  if (PORTABLE)
   {
-    return std::string();
-  }
-  std::string separator("\\");
-  std::string directoryPath(appData);
-  if (directoryPath[directoryPath.size() - 1] != separator[0])
-  {
-    directoryPath.append(separator);
-  }
-  directoryPath += applicationName + separator;
-#else
-  std::string directoryPath;
-  std::string separator("/");
-
-  // Emulating QSettings behavior.
-  const char* xdgConfigHome = getenv("XDG_CONFIG_HOME");
-  if (xdgConfigHome && strlen(xdgConfigHome) > 0)
-  {
-    directoryPath = xdgConfigHome;
-    if (directoryPath[directoryPath.size() - 1] != separator[0])
-    {
-      directoryPath += separator;
-    }
+    vtkPVOptions* options = vtkProcessModule::GetProcessModule()->GetOptions();
+    const char* app_dir_p = options->GetApplicationPath();
+    std::string app_dir = app_dir_p ? app_dir_p : "";
+    app_dir = vtksys::SystemTools::GetProgramPath(app_dir.c_str()) + "/";
+    return app_dir;
   }
   else
   {
-    const char* home = getenv("HOME");
-    if (!home)
+
+    std::string organizationName(vtkInitializationHelper::GetOrganizationName());
+    std::string applicationName(vtkInitializationHelper::GetApplicationName());
+#if defined(_WIN32)
+    const char* appData = vtksys::SystemTools::GetEnv("APPDATA");
+    if (!appData)
     {
       return std::string();
     }
-    directoryPath = home;
+    std::string separator("\\");
+    std::string directoryPath(appData);
     if (directoryPath[directoryPath.size() - 1] != separator[0])
     {
-      directoryPath += separator;
+      directoryPath.append(separator);
     }
-    directoryPath += ".config/";
-  }
-  directoryPath += organizationName + separator;
+    directoryPath += applicationName + separator;
+#else
+    std::string directoryPath;
+    std::string separator("/");
+
+    // Emulating QSettings behavior.
+    const char* xdgConfigHome = getenv("XDG_CONFIG_HOME");
+    if (xdgConfigHome && strlen(xdgConfigHome) > 0)
+    {
+      directoryPath = xdgConfigHome;
+      if (directoryPath[directoryPath.size() - 1] != separator[0])
+      {
+        directoryPath += separator;
+      }
+    }
+    else
+    {
+      const char* home = getenv("HOME");
+      if (!home)
+      {
+        return std::string();
+      }
+      directoryPath = home;
+      if (directoryPath[directoryPath.size() - 1] != separator[0])
+      {
+        directoryPath += separator;
+      }
+      directoryPath += ".config/";
+    }
+    directoryPath += organizationName + separator;
 #endif
-  return directoryPath;
+    return directoryPath;
+  }
 }
 
 //----------------------------------------------------------------------------
